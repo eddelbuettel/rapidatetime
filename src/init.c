@@ -10,7 +10,7 @@ SEXP strptime(SEXP objarg, SEXP fmtarg, SEXP tzarg);
 
 /* definition of functions provided for .Call() 			*/
 static const R_CallMethodDef callMethods[] = {
-    { "strptime",        	(DL_FUNC) &strptime,                3 },
+    { "strptime",       	(DL_FUNC) &strptime,                3 },
     { NULL,                	NULL,                               0 }
 };
 

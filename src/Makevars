@@ -1,0 +1,3 @@
+
+PKG_CPPFLAGS=-I../../inst/include
+PKG_CFLAGS=-Wno-uninitialized -Wno-maybe-uninitialized -Wno-unused-function 

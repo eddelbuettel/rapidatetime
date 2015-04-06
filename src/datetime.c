@@ -75,6 +75,11 @@ known OS with 64-bit time_t and complete tables is Linux.
 
 */
 
+
+char *R_tzname[2];
+// #define USE_INTERNAL_MKTIME
+#define HAVE_POSIX_LEAPSECONDS
+
 #ifdef USE_INTERNAL_MKTIME
 # include "datetime.h"
 # undef HAVE_LOCAL_TIME_R
@@ -102,8 +107,9 @@ extern char *tzname[2];
 /*#include <Internal.h>*/
 #include <string.h>
 #define attribute_hidden  
-#define Rexp10(x) pow(10.0, x)
+#define Rexp10(x) pow(10.0, x) /* DEdd */
 #include <Rinternals.h>
+SEXP installAttrib(SEXP vec, SEXP name, SEXP val); /* DEdd */
 
 /* Substitute based on glibc code. */
 #include "Rstrptime.h"
@@ -1021,8 +1027,11 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 
 //SEXP attribute_hidden do_strptime(SEXP call, SEXP op, SEXP args, SEXP env)
 //extern "C" SEXP strtime(SEXP objarg, SEXP fmtarg, SEXP tzarg) 
-SEXP strtime(SEXP objarg, SEXP fmtarg, SEXP tzarg) 
+SEXP strptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) 
 {
+    /* Rf_PrintValue(x); */  /* DEdd */
+    /* Rf_PrintValue(sformat); */ /* DEdd */
+    /* Rf_PrintValue(stz); */ /* DEdd */
     SEXP x, sformat, ans, ansnames, klass, stz, tzone = R_NilValue;
     int invalid, isgmt = 0, settz = 0, offset;
     stm tm, tm2, *ptm = &tm;
@@ -1031,19 +1040,28 @@ SEXP strtime(SEXP objarg, SEXP fmtarg, SEXP tzarg)
     double psecs = 0.0;
     R_xlen_t n, m, N;
 
+    x = xarg;
+    sformat = sformatarg;
+    stz = stzarg;
     /* checkArity(op, args); */
     /* if(!isString((x = CAR(args)))) */
     /*     error(_("invalid '%s' argument"), "x"); */
+    if (!isString(x))
+        error("invalid '%s' argument", "x"); 
     /* if(!isString((sformat = CADR(args))) || XLENGTH(sformat) == 0) */
     /*     error(_("invalid '%s' argument"), "x"); */
+    if (!isString(sformat) || XLENGTH(sformat) == 0) 
+        error("invalid '%s' argument", "sformat"); 
     /* if(!isString((stz = CADDR(args))) || LENGTH(stz) != 1) */
     /*     error(_("invalid '%s' value"), "tz"); */
-    /* tz = CHAR(STRING_ELT(stz, 0)); */
-    if(strlen(tz) == 0) {
+    if (!isString(stz) || LENGTH(stz) != 1) 
+         error("invalid '%s' value", "tz"); 
+    tz = CHAR(STRING_ELT(stz, 0)); 
+    if (strlen(tz) == 0) {
 	/* do a direct look up here as this does not otherwise
 	   work on Windows */
 	char *p = getenv("TZ");
-	if(p) {
+	if (p) {
 	    stz = mkString(p);
 	    tz = CHAR(STRING_ELT(stz, 0));
 	}
@@ -1089,7 +1107,6 @@ SEXP strtime(SEXP objarg, SEXP fmtarg, SEXP tzarg)
     PROTECT(ansnames = allocVector(STRSXP, nans));
     for(int i = 0; i < nans; i++)
 	SET_STRING_ELT(ansnames, i, mkChar(ltnames[i]));
-
 
     for(R_xlen_t i = 0; i < N; i++) {
 	/* for glibc's sake. That only sets some unspecified fields,
@@ -1161,7 +1178,8 @@ SEXP strtime(SEXP objarg, SEXP fmtarg, SEXP tzarg)
     PROTECT(klass = allocVector(STRSXP, 2));
     SET_STRING_ELT(klass, 0, mkChar("POSIXlt"));
     SET_STRING_ELT(klass, 1, mkChar("POSIXt"));
-    classgets(ans, klass);
+    //assgets(ans, klass);  /* DEdd: this bombs, so use installAttrib instead */
+    installAttrib(ans, R_ClassSymbol, klass); /* fix by DE */
     if(settz) reset_tz(oldtz);
     if(isString(tzone)) setAttrib(ans, install("tzone"), tzone);
 
