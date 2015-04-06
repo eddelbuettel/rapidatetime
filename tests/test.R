@@ -11,3 +11,6 @@ print(as.POSIXct(X))    ## this works
 #print(str(X))		## bombs in format.POSIXlt
 #print(X) 		## bombs in format.POSIXlt
 
+print(.Call("formatPOSIXlt", X, "%Y-%m-%d", FALSE, PACKAGE="RApiDatetime"))
+
+print(.Call("asPOSIXct", X, "America/Chicago", PACKAGE="RApiDatetime"))

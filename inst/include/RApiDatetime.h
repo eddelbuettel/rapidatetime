@@ -47,17 +47,28 @@ extern "C" {
 /* provided the interface for the function exported 	*/
 /* in ../src/init.c via R_RegisterCCallable()		*/
 
-SEXP /*attribute_hidden*/ strptime(SEXP x, SEXP y, SEPX x) {
+SEXP attribute_hidden strptime(SEXP x, SEXP y, SEPX x) {
 static SEXP(*fun)(SEXP,SEXP,SEXP) = 
         (SEXP(*)(SEXP)) R_GetCCallable("RApiDatetime", "strptime");
     return fun(x);
 }
 
+SEXP attribute_hidden asPOSIXct(SEXP x, SEXP tz) {
+static SEXP(*fun)(SEXP,SEXP) = 
+        (SEXP(*)(SEXP)) R_GetCCallable("RApiDatetime", "asPOSIXct");
+    return fun(x);
+}
+
+SEXP attribute_hidden formatPOSIXlt(SEXP x, SEXP b, SEXP c) {
+static SEXP(*fun)(SEXP,SEXP,SEXP) = 
+        (SEXP(*)(SEXP)) R_GetCCallable("RApiDatetime", "formatPOSIXlt");
+    return fun(x);
+}
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _R_Api_Serialize_API_h */
+#endif /* _R_Api_Datetime_API_h */
 
 

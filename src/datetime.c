@@ -107,6 +107,7 @@ extern char *tzname[2];
 /*#include <Internal.h>*/
 #include <string.h>
 #define attribute_hidden  
+#define HAVE_PUTENV
 #define Rexp10(x) pow(10.0, x) /* DEdd */
 #include <Rinternals.h>
 SEXP installAttrib(SEXP vec, SEXP name, SEXP val); /* DEdd */
@@ -555,7 +556,7 @@ static int set_tz(const char *tz, char *oldtz)
 	strcpy(oldtz, p);
     }
 #ifdef HAVE_SETENV
-    if(setenv("TZ", tz, 1)) warning(_("problem with setting timezone"));
+    if(setenv("TZ", tz, 1)) warning("problem with setting timezone");
     settz = 1;
 #elif defined(HAVE_PUTENV)
     {
@@ -563,7 +564,7 @@ static int set_tz(const char *tz, char *oldtz)
 	if (strlen(tz) > 1000)
 	    error("time zone specification is too long");
 	strcpy(buff, "TZ="); strcat(buff, tz);
-	if(putenv(buff)) warning(_("problem with setting timezone"));
+	if(putenv(buff)) warning("problem with setting timezone");
     }
     settz = 1;
 #else
@@ -577,21 +578,21 @@ static void reset_tz(char *tz)
 {
     if(strlen(tz)) {
 #ifdef HAVE_SETENV
-	if(setenv("TZ", tz, 1)) warning(_("problem with setting timezone"));
+	if(setenv("TZ", tz, 1)) warning("problem with setting timezone");
 #elif defined(HAVE_PUTENV)
 	{
 	    static char buff[200];
 	    strcpy(buff, "TZ="); strcat(buff, tz);
-	    if(putenv(buff)) warning(_("problem with setting timezone"));
+	    if(putenv(buff)) warning("problem with setting timezone");
 	}
 #endif
     } else {
 #ifdef HAVE_UNSETENV
 	unsetenv("TZ"); /* FreeBSD variants do not return a value */
 #elif defined(HAVE_PUTENV_UNSET)
-	if(putenv("TZ")) warning(_("problem with unsetting timezone"));
+	if(putenv("TZ")) warning("problem with unsetting timezone");
 #elif defined(HAVE_PUTENV_UNSET2)
-	if(putenv("TZ=")) warning(_("problem with unsetting timezone"));
+	if(putenv("TZ=")) warning("problem with unsetting timezone");
 #endif
     }
     tzset();
@@ -783,12 +784,14 @@ SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
 
     /* checkArity(op, args); */
     /* PROTECT(x = duplicate(CAR(args))); /\* coerced below *\/ */
-    /* if(!isVectorList(x) || LENGTH(x) < 9) */
-    /*     error("invalid '%s' argument", "x"); */
+    PROTECT(x = duplicate(sxparg)); /* coerced below */ 
+    if (!isVectorList(x) || LENGTH(x) < 9)
+        error("invalid '%s' argument", "x");
     /* if(!isString((stz = CADR(args))) || LENGTH(stz) != 1) */
-    /*     error("invalid '%s' value", "tz"); */
+    if (!isString((stz = tzarg)) || LENGTH(stz) != 1)
+        error("invalid '%s' value", "tz");
 
-    /* tz = CHAR(STRING_ELT(stz, 0)); */
+    tz = CHAR(STRING_ELT(stz, 0)); 
     if(strlen(tz) == 0) {
 	/* do a direct look up here as this does not otherwise
 	   work on Windows */
@@ -874,13 +877,16 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 
     /* checkArity(op, args); */
     /* PROTECT(x = duplicate(CAR(args))); /\* coerced below *\/ */
-    /* if(!isVectorList(x) || LENGTH(x) < 9) */
-    /*     error("invalid '%s' argument", "x"); */
+    PROTECT(x = duplicate(argsxp)); /* coerced below */ 
+    if (!isVectorList(x) || LENGTH(x) < 9)
+        error("invalid '%s' argument", "x");
     /* if(!isString((sformat = CADR(args))) || XLENGTH(sformat) == 0) */
-    /*     error("invalid '%s' argument", "format"); */
-    /* m = XLENGTH(sformat); */
+    if (!isString((sformat = fmtsxp)) || XLENGTH(sformat) == 0)
+        error("invalid '%s' argument", "format");
+    m = XLENGTH(sformat);
     /* UseTZ = asLogical(CADDR(args)); */
-    if(UseTZ == NA_LOGICAL)
+    UseTZ = asLogical(tzsxp);
+    if (UseTZ == NA_LOGICAL)
 	error("invalid '%s' argument", "usetz");
     tz = getAttrib(x, install("tzone"));
 
@@ -1023,7 +1029,6 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
     if(settz) reset_tz(oldtz);
     return ans;
 }
-
 
 //SEXP attribute_hidden do_strptime(SEXP call, SEXP op, SEXP args, SEXP env)
 //extern "C" SEXP strtime(SEXP objarg, SEXP fmtarg, SEXP tzarg) 
@@ -1197,10 +1202,11 @@ SEXP D2POSIXlt(SEXP argsxp)
 
     /* checkArity(op, args); */
     /* PROTECT(x = coerceVector(CAR(args), REALSXP)); */
-    /* n = XLENGTH(x); */
-    /* PROTECT(ans = allocVector(VECSXP, 9)); */
-    /* for(int i = 0; i < 9; i++) */
-    /*     SET_VECTOR_ELT(ans, i, allocVector(i > 0 ? INTSXP : REALSXP, n)); */
+    PROTECT(x = coerceVector(argsxp, REALSXP));
+    n = XLENGTH(x); 
+    PROTECT(ans = allocVector(VECSXP, 9)); 
+    for(int i = 0; i < 9; i++) 
+        SET_VECTOR_ELT(ans, i, allocVector(i > 0 ? INTSXP : REALSXP, n)); 
 
     PROTECT(ansnames = allocVector(STRSXP, 9));
     for(int i = 0; i < 9; i++)
@@ -1258,8 +1264,9 @@ SEXP POSIXlt2D(SEXP sxparg)
 
     /* checkArity(op, args); */
     /* PROTECT(x = duplicate(CAR(args))); */
-    /* if(!isVectorList(x) || LENGTH(x) < 9) */
-    /*     error("invalid '%s' argument", "x"); */
+    PROTECT(x = duplicate(sxparg)); 
+    if(!isVectorList(x) || LENGTH(x) < 9) 
+        error("invalid '%s' argument", "x"); 
 
     for(int i = 3; i < 6; i++)
 	if((nlen[i] = XLENGTH(VECTOR_ELT(x, i))) > n) n = nlen[i];
