@@ -1,15 +1,14 @@
 Package: RApiDatetime
 Type: Package
 Title: R API Datetime
-Version: 0.1.0
-Date: 2015-04-05
+Version: 0.0.2
+Date: 2017-03-18
 Author: Dirk Eddelbuettel and R Core (original code)
 Maintainer: Dirk Eddelbuettel <edd@debian.org>
 Description: This packages provides other packages with access to the internal
  R datetime code. Access to this code is provided at the C function level by
  using the registration of native functions mechanism. Client packages simply
- include a single header RApiDatetime.h provided by this package.
- .
- The R Core group is the original author of the datetime code made available
- by this package. 
+ include a single header RApiDatetime.h provided by this package.  The R Core
+ group is the original author of the datetime code made available by this package. 
 License: GPL (>= 2)
+RoxygenNote: 6.0.1

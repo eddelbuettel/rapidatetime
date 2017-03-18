@@ -40,7 +40,7 @@
 static int locale_strings_set = 0;
 static int locale_w_strings_set = 0;
 static void get_locale_strings(void);
-static void get_locale_w_strings(void);
+//static void get_locale_w_strings(void);
 
 
 #ifdef HAVE_STRINGS_H
@@ -174,6 +174,7 @@ day_of_the_year (stm *tm)
 #include <wchar.h>
 #include <wctype.h>
 
+#if 0
 static wchar_t w_weekday_name[][50] =
 {
     L"Sunday", L"Monday", L"Tuesday", L"Wednesday",
@@ -206,6 +207,7 @@ static int Rwcsncasecmp(const wchar_t *cs1, const wchar_t *s2)
     }
     return 0;
 }
+#endif
 
 #define w_match_string(cs1, s2) \
   (Rwcsncasecmp ((cs1), (s2)) ? 0 : ((s2) += wcslen (cs1), 1))
@@ -214,6 +216,7 @@ static int Rwcsncasecmp(const wchar_t *cs1, const wchar_t *s2)
   (*(new_fmt) != '\0'							      \
    && (rp = w_strptime_internal (rp, (new_fmt), tm, psecs, poffset)) != NULL)
 
+#if 0
 static wchar_t *
 w_strptime_internal (wchar_t *rp, const wchar_t *fmt, stm *tm,
 		     double *psecs, int *poffset)
@@ -684,7 +687,7 @@ w_strptime_internal (wchar_t *rp, const wchar_t *fmt, stm *tm,
 
   return rp;
 }
-
+#endif
 
 static char *
 strptime_internal (const char *rp, const char *fmt, stm *tm,

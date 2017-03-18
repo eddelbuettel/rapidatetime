@@ -1,0 +1,11 @@
+2017-03-18  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/datetime.c: Updated relative to R sources (needs another pass)
+	* src/datetime.h: Updated relative to R sources
+
+	* src/Rstrptime.h: Commented-out unused wide-char code to quieten compiler
+
+	* R/datetime.R (rapistrptime, rapiAsPOSIXct): Added short help page
+	entries
+	* man/rapistrptime: Added
+	* man/rapiAsPOSIXct.Rd: Added
