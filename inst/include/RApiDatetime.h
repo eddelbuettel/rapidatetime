@@ -21,8 +21,8 @@
  */
 
 
-/* This header file provides the interface used by other packages, */
-/* and should be included once per package.                        */
+/* This header file provides the interface used by other packages, 
+   and should be included once per package.                        */
 
 #ifndef _R_Api_Datetime_API_h_
 #define _R_Api_Datetime_API_h_
@@ -44,27 +44,41 @@
 extern "C" {
 #endif
 
-/* provided the interface for the function exported 	*/
-/* in ../src/init.c via R_RegisterCCallable()		*/
+/* provided the interface for the function exported in	
+   ../src/init.c via R_RegisterCCallable()		*/
 
-SEXP attribute_hidden strptime(SEXP x, SEXP y, SEPX x) {
-static SEXP(*fun)(SEXP,SEXP,SEXP) = 
-        (SEXP(*)(SEXP)) R_GetCCallable("RApiDatetime", "strptime");
-    return fun(x);
+SEXP attribute_hidden asPOSIXlt(SEXP x, SEXP tz) {
+    static SEXP(*fun)(SEXP,SEXP) = (SEXP(*)(SEXP,SEXP)) R_GetCCallable("RApiDatetime", "asPOSIXlt");
+    return fun(x,tz);
 }
 
 SEXP attribute_hidden asPOSIXct(SEXP x, SEXP tz) {
-static SEXP(*fun)(SEXP,SEXP) = 
-        (SEXP(*)(SEXP)) R_GetCCallable("RApiDatetime", "asPOSIXct");
-    return fun(x);
+    static SEXP(*fun)(SEXP,SEXP) = (SEXP(*)(SEXP,SEXP)) R_GetCCallable("RApiDatetime", "asPOSIXct");
+    return fun(x,tz);
 }
 
 SEXP attribute_hidden formatPOSIXlt(SEXP x, SEXP b, SEXP c) {
-static SEXP(*fun)(SEXP,SEXP,SEXP) = 
-        (SEXP(*)(SEXP)) R_GetCCallable("RApiDatetime", "formatPOSIXlt");
-    return fun(x);
+    static SEXP(*fun)(SEXP,SEXP,SEXP) = 
+        (SEXP(*)(SEXP,SEXP,SEXP)) R_GetCCallable("RApiDatetime", "formatPOSIXlt");
+    return fun(x,b,c);
 }
 
+SEXP attribute_hidden Rstrptime(SEXP x, SEXP fmt, SEXP tz) {
+    static SEXP(*fun)(SEXP,SEXP,SEXP) =
+        (SEXP(*)(SEXP,SEXP,SEXP)) R_GetCCallable("RApiDatetime", "Rstrptime");
+    return fun(x,fmt,tz);
+}
+
+SEXP attribute_hidden POSIXlt2D(SEXP x) {
+    static SEXP(*fun)(SEXP) = (SEXP(*)(SEXP)) R_GetCCallable("RApiDatetime", "POSIXlt2D");
+    return fun(x,tz);
+}
+
+SEXP attribute_hidden D2POSIXlt(SEXP x) {
+    static SEXP(*fun)(SEXP) = (SEXP(*)(SEXP)) R_GetCCallable("RApiDatetime", "D2POSIXlt");
+    return fun(x,tz);
+}
+    
 #ifdef __cplusplus
 }
 #endif

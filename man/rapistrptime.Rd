@@ -2,9 +2,24 @@
 % Please edit documentation in R/datetime.R
 \name{rapistrptime}
 \alias{rapistrptime}
-\title{R Wrapper for \code{strptime}}
+\alias{rapiAsPOSIXlt}
+\alias{rapiAsPOSIXct}
+\alias{rapiFormatPOSIXlt}
+\alias{rapiPOSIXlt2D}
+\alias{rapiD2POSIXlt}
+\title{R Wrappers for \code{strptime}, \code{asPOSIXlt} etc}
 \usage{
 rapistrptime(x, fmt, tz = "")
+
+rapiAsPOSIXlt(x, tz = "")
+
+rapiAsPOSIXct(x, tz = "")
+
+rapiFormatPOSIXlt(x, fmt, usetz = FALSE)
+
+rapiPOSIXlt2D(x)
+
+rapiD2POSIXlt(x)
 }
 \arguments{
 \item{x}{Vector with one or character elements to be parsed}
@@ -13,17 +28,19 @@ rapistrptime(x, fmt, tz = "")
 details.}
 
 \item{tz}{An optional timezone string}
+
+\item{usetz}{An optional logical variable selecting use of the timezone.}
 }
 \value{
 A vector with \code{POSIXlt} datetime objects
 }
 \description{
-Wrapper for C-level \code{strptime} function
+Wrappers for C-level \code{strptime} etc functions
 }
 \details{
-This function provides an entry point from R to the
-\code{strptime} function of the R API. It is use mainly for
-testing as R itself exposes the function.
+These functions provide (additional) entry points from R to the
+C-level function of the R API. They are provided here mainly for
+testing (the C level access) as R itself exposes the function
 }
 \author{
 Dirk Eddelbuettel

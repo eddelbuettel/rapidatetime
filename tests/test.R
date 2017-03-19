@@ -1,22 +1,21 @@
 #!/usr/bin/Rscript
 
-#Sys.setenv(TZ="America/Chicago")
+Sys.setenv(TZ="America/Chicago")
 options(digits.secs=6)
 library(RApiDatetime)
+
 x <- format(as.POSIXct(Sys.time()+0:1, origin="1970-01-01"))
+str(x)
 
 X <- rapistrptime(x, "%Y-%m-%d %H:%M:%OS", "")
-#print(X)
-#print(str(X))
-#print(X)
-#print(rapiAsPOSIXct(X))
+str(X)
 
-#print(str(X))		## bombs in format.POSIXlt
-#print(X) 		## bombs in format.POSIXlt
+str(rapiAsPOSIXct(X))
 
-print(.Call("formatPOSIXlt", X, "%Y-%m-%d", FALSE, PACKAGE="RApiDatetime"))
+str(rapiPOSIXlt2D(X))
 
-print(.Call("asPOSIXct", X, "UTC", PACKAGE="RApiDatetime"))
+str(rapiD2POSIXlt(rapiPOSIXlt2D(X)))
 
-x2 <- .Call("asPOSIXct", X, "UTC", PACKAGE="RApiDatetime")
-str(x2)
+str(rapiFormatPOSIXlt(X, "%Y-%b-%d %H:%M:%OS"))
+str(rapiFormatPOSIXlt(X, "%Y-%b-%d %H:%M:%OS", TRUE))
+
