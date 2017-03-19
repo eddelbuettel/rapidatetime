@@ -773,7 +773,7 @@ SEXP asPOSIXlt(SEXP argsxp, SEXP tzarg) // other args?
 //SEXP attribute_hidden do_asPOSIXct(SEXP call, SEXP op, SEXP args, SEXP env)
 SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
 {
-    SEXP stz, x, ans;
+    SEXP stz, x, ans, klass;
     R_xlen_t n = 0, nlen[9];
     int isgmt = 0, settz = 0;
     char oldtz[1001] = "";
@@ -860,7 +860,13 @@ SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
 
     if(settz) reset_tz(oldtz);
 
-    UNPROTECT(3);
+    // added by DEdd.
+    PROTECT(klass = allocVector(STRSXP, 2));
+    SET_STRING_ELT(klass, 0, mkChar("POSIXct"));
+    SET_STRING_ELT(klass, 1, mkChar("POSIXt"));
+    classgets(ans, klass);
+    
+    UNPROTECT(4);
     return ans;
 }
 
@@ -1031,12 +1037,10 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 }
 
 //SEXP attribute_hidden do_strptime(SEXP call, SEXP op, SEXP args, SEXP env)
-//extern "C" SEXP strtime(SEXP objarg, SEXP fmtarg, SEXP tzarg) 
-SEXP strptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) 
-{
-    /* Rf_PrintValue(x); */  /* DEdd */
-    /* Rf_PrintValue(sformat); */ /* DEdd */
-    /* Rf_PrintValue(stz); */ /* DEdd */
+SEXP Rstrptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) {
+    /* Rf_PrintValue(xarg); */  /* DEdd */
+    /* Rf_PrintValue(sformatarg); */ /* DEdd */
+    /* Rf_PrintValue(stzarg); */ /* DEdd */
     SEXP x, sformat, ans, ansnames, klass, stz, tzone = R_NilValue;
     int invalid, isgmt = 0, settz = 0, offset;
     stm tm, tm2, *ptm = &tm;
