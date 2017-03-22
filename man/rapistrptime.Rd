@@ -42,6 +42,17 @@ These functions provide (additional) entry points from R to the
 C-level function of the R API. They are provided here mainly for
 testing (the C level access) as R itself exposes the function
 }
+\examples{
+op <- options(digits.secs=6)
+x <- rapistrptime("2017-01-02 03:04:05.678", "\%Y-\%m-\%d \%H:\%M:\%OS")
+format(x)
+rapiAsPOSIXlt(as.POSIXct(x))
+rapiAsPOSIXct(x)
+rapiFormatPOSIXlt(x, "\%Y-\%b-\%d \%H:\%M:\%OS")
+options(op)
+rapiPOSIXlt2D(x)
+rapiD2POSIXlt(as.Date("2017-01-02"))
+}
 \author{
 Dirk Eddelbuettel
 }

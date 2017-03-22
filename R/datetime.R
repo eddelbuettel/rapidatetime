@@ -12,37 +12,50 @@
 ##' @param usetz An optional logical variable selecting use of the timezone.
 ##' @return A vector with \code{POSIXlt} datetime objects
 ##' @author Dirk Eddelbuettel
+##' @examples
+##' op <- options(digits.secs=6)
+##' x <- rapistrptime("2017-01-02 03:04:05.678", "%Y-%m-%d %H:%M:%OS")
+##' format(x)
 rapistrptime <- function(x, fmt, tz="") {
     res <- .Call("Rstrptime", x, fmt, tz, PACKAGE="RApiDatetime")
     res
 }
 
 ##' @rdname rapistrptime
+##' @examples
+##' rapiAsPOSIXlt(as.POSIXct(x))
 rapiAsPOSIXlt <- function(x, tz="") {
     res <- .Call("asPOSIXlt", x, tz, PACKAGE="RApiDatetime")
     res
 }
 
 ##' @rdname rapistrptime
+##' @examples
+##' rapiAsPOSIXct(x)
 rapiAsPOSIXct <- function(x, tz="") {
     res <- .Call("asPOSIXct", x, tz, PACKAGE="RApiDatetime")
     res
 }
 
 ##' @rdname rapistrptime
+##' @examples
+##' rapiFormatPOSIXlt(x, "%Y-%b-%d %H:%M:%OS")
+##' options(op)
 rapiFormatPOSIXlt <- function(x, fmt, usetz=FALSE) {
     res <- .Call("formatPOSIXlt", x, fmt, usetz, PACKAGE="RApiDatetime")
     res
 }
 
 ##' @rdname rapistrptime
+##' @examples rapiPOSIXlt2D(x)
 rapiPOSIXlt2D <- function(x) {
     res <- .Call("POSIXlt2D", x, PACKAGE="RApiDatetime")
     res
-}    
+}
 
 ##' @rdname rapistrptime
+##' @examples rapiD2POSIXlt(as.Date("2017-01-02"))
 rapiD2POSIXlt <- function(x) {
     res <- .Call("D2POSIXlt", x, PACKAGE="RApiDatetime")
     res
-}    
+}

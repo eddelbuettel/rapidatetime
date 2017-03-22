@@ -1,3 +1,13 @@
+2017-03-22  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/datetime.R: Add examples to all functions
+	* man/rapistrptime.Rd: Ditto
+
+	* src/datetime.c (asPOSIXlt): Bugfix
+
+	* .travis.yml: Add Travis CI support
+	* .codecov.yml: Add CodeCov support
+
 2017-03-19  Dirk Eddelbuettel  <edd@debian.org>
 
 	* src/init.c: Expanded registration to six functions

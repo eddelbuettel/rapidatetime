@@ -4,7 +4,7 @@ Sys.setenv(TZ="America/Chicago")
 options(digits.secs=6)
 library(RApiDatetime)
 
-x <- format(as.POSIXct(Sys.time()+0:1, origin="1970-01-01"))
+x <- format(as.POSIXct(Sys.time() + 0:1, origin="1970-01-01"))
 str(x)
 
 X <- rapistrptime(x, "%Y-%m-%d %H:%M:%OS", "")

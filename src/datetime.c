@@ -686,6 +686,9 @@ SEXP asPOSIXlt(SEXP argsxp, SEXP tzarg) // other args?
     /* if(!isString((stz = CADR(args))) || LENGTH(stz) != 1) */
     /*     error("invalid '%s' value", "tz"); */
     /* tz = CHAR(STRING_ELT(stz, 0)); */
+    if (!isString((stz = tzarg)) || LENGTH(stz) != 1)
+        error("invalid '%s' value", "tz");
+    tz = CHAR(STRING_ELT(stz, 0));
     if(strlen(tz) == 0) {
 	/* do a direct look up here as this does not otherwise
 	   work on Windows */
@@ -766,7 +769,7 @@ SEXP asPOSIXlt(SEXP argsxp, SEXP tzarg) // other args?
     SEXP nm = getAttrib(x, R_NamesSymbol);
     if(nm != R_NilValue) setAttrib(VECTOR_ELT(ans, 5), R_NamesSymbol, nm);
     if(settz) reset_tz(oldtz);
-    UNPROTECT(6);
+    UNPROTECT(5);
     return ans;
 }
 
