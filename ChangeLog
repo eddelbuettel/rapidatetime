@@ -5,6 +5,8 @@
 
 	* src/datetime.c (asPOSIXlt): Bugfix
 
+	* tests/test.R: Also call rapiAsPOSIXlt()
+
 	* .travis.yml: Add Travis CI support
 	* .codecov.yml: Add CodeCov support
 

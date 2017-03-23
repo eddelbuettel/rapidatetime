@@ -11,6 +11,7 @@ X <- rapistrptime(x, "%Y-%m-%d %H:%M:%OS", "")
 str(X)
 
 str(rapiAsPOSIXct(X))
+str(rapiAsPOSIXlt(rapiAsPOSIXct(X)))
 
 str(rapiPOSIXlt2D(X))
 
