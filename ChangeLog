@@ -1,3 +1,9 @@
+2017-03-23  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Release 0.0.1
+
+	* DESCRIPTION (OS_type): At least for now, unix only
+
 2017-03-22  Dirk Eddelbuettel  <edd@debian.org>
 
 	* R/datetime.R: Add examples to all functions

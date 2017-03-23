@@ -1,4 +1,4 @@
-## RApiDatetime [![Build Status](https://travis-ci.org/eddelbuettel/rapidatetime.svg)](https://travis-ci.org/eddelbuettel/rapidatetime) [![License](http://img.shields.io/badge/license-GPL%20%28%3E=%202%29-brightgreen.svg?style=flat)](http://www.gnu.org/licenses/gpl-2.0.html) [![Code Coverage](https://codecov.io/gh/eddelbuettel/rapidatetime/graph/badge.svg)](https://codecov.io/gh/eddelbuettel/rapidatetimetime)
+## RApiDatetime [![Build Status](https://travis-ci.org/eddelbuettel/rapidatetime.svg)](https://travis-ci.org/eddelbuettel/rapidatetime) [![License](http://img.shields.io/badge/license-GPL%20%28%3E=%202%29-brightgreen.svg?style=flat)](http://www.gnu.org/licenses/gpl-2.0.html) [![Code Coverage](https://codecov.io/gh/eddelbuettel/rapidatetime/graph/badge.svg)](https://codecov.io/gh/eddelbuettel/rapidatetime)
 
 ### About
 
@@ -13,7 +13,7 @@ function could do it.
 ### Copyrights
 
 Copyrights are held by the respective authors, in particular the R Core Team
-for the included code, and Dirk Eddelbuettel for any modificatons,
+for the included code from R, and Dirk Eddelbuettel for any modificatons,
 integgration and the remainder of the package.
 
 ### Author
