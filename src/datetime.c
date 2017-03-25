@@ -96,7 +96,7 @@ char *R_tzname[2];
 
 typedef struct tm stm;
 #define R_tzname tzname
-# if defined(__CYGWIN__)
+# if defined(__CYGWIN__) || defined(_WIN32)
 extern __declspec(dllimport) char *tzname[2];
 # else
 extern char *tzname[2];
