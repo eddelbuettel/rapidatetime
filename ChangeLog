@@ -1,3 +1,8 @@
+2017-03-26  Dirk Eddelbuettel  <edd@debian.org>
+
+        * LICENSE: Added to repository
+        * .Rbuildignore: Do not include LICENSE in package
+
 2017-03-25  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Date, Version): Release 0.0.2
