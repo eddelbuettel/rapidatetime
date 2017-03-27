@@ -1,2 +1,7 @@
-useDynLib(RApiDatetime)
-exportPattern("^[[:alpha:]]+")
+useDynLib(RApiDatetime, .registration=TRUE)
+export("rapistrptime",
+       "rapiAsPOSIXlt",
+       "rapiAsPOSIXct",
+       "rapiFormatPOSIXlt",
+       "rapiPOSIXlt2D",
+       "rapiD2POSIXlt")

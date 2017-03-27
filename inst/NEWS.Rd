@@ -3,6 +3,13 @@
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/rapidatetime/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/rapidatetime/issues/#1}{##1}}
 
+\section{Changes in RApiDatetime version 0.0.3 (2017-xx-yy)}{
+  \itemize{
+    \item Also enable registration in \code{useDynLib}, and explicitly
+    export known and documented R access functions proived for testing
+  }
+}
+
 \section{Changes in RApiDatetime version 0.0.2 (2017-03-25)}{
   \itemize{
     \item Windows support has added (Josh Ulrich in \ghpr{1})

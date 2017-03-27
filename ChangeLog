@@ -1,3 +1,10 @@
+2017-03-27  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Date, Version): Roll minor version and date
+
+	* NAMESPACE: Also enable registration in useDynLib, explicitly export
+	six R-level functions
+
 2017-03-26  Dirk Eddelbuettel  <edd@debian.org>
 
         * LICENSE: Added to repository
