@@ -3,10 +3,11 @@
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/rapidatetime/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/rapidatetime/issues/#1}{##1}}
 
-\section{Changes in RApiDatetime version 0.0.3 (2017-xx-yy)}{
+\section{Changes in RApiDatetime version 0.0.3 (2017-04-02)}{
   \itemize{
+    \item Correct two simple copy-and-paste errors in \code{RApiDatetime.h}
     \item Also enable registration in \code{useDynLib}, and explicitly
-    export known and documented R access functions proived for testing
+    export known and documented R access functions provided for testing
   }
 }
 

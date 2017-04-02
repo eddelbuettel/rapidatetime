@@ -71,12 +71,12 @@ SEXP attribute_hidden Rstrptime(SEXP x, SEXP fmt, SEXP tz) {
 
 SEXP attribute_hidden POSIXlt2D(SEXP x) {
     static SEXP(*fun)(SEXP) = (SEXP(*)(SEXP)) R_GetCCallable("RApiDatetime", "POSIXlt2D");
-    return fun(x,tz);
+    return fun(x);
 }
 
 SEXP attribute_hidden D2POSIXlt(SEXP x) {
     static SEXP(*fun)(SEXP) = (SEXP(*)(SEXP)) R_GetCCallable("RApiDatetime", "D2POSIXlt");
-    return fun(x,tz);
+    return fun(x);
 }
     
 #ifdef __cplusplus
