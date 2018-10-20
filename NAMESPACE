@@ -4,4 +4,5 @@ export("rapistrptime",
        "rapiAsPOSIXct",
        "rapiFormatPOSIXlt",
        "rapiPOSIXlt2D",
-       "rapiD2POSIXlt")
+       "rapiD2POSIXlt",
+       "asDatePOSIXct")

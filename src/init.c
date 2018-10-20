@@ -11,6 +11,7 @@ SEXP formatPOSIXlt(SEXP objarg, SEXP fmtarg, SEXP tzarg);
 SEXP Rstrptime(SEXP objarg, SEXP fmtarg, SEXP tzarg);
 SEXP POSIXlt2D(SEXP sxparg);
 SEXP D2POSIXlt(SEXP argsxp);
+SEXP POSIXct2D(SEXP, SEXP);
 
 
 /* definition of functions provided for .Call() 			*/
@@ -20,6 +21,7 @@ static const R_CallMethodDef callMethods[] = {
     { "formatPOSIXlt",       	(DL_FUNC) &formatPOSIXlt,           3 },
     { "Rstrptime",       	(DL_FUNC) &Rstrptime,               3 },
     { "POSIXlt2D",       	(DL_FUNC) &POSIXlt2D,               1 },
+    { "POSIXct2D",       	(DL_FUNC) &POSIXct2D,               2 },
     { "D2POSIXlt",       	(DL_FUNC) &D2POSIXlt,               1 },
     { NULL,                	NULL,                               0 }
 };
@@ -35,6 +37,7 @@ void R_init_RApiDatetime(DllInfo *info) {
     R_RegisterCCallable("RApiDatetime", "formatPOSIXlt", (DL_FUNC) &formatPOSIXlt);
     R_RegisterCCallable("RApiDatetime", "Rstrptime",     (DL_FUNC) &Rstrptime);
     R_RegisterCCallable("RApiDatetime", "POSIXlt2D",     (DL_FUNC) &POSIXlt2D);
+    R_RegisterCCallable("RApiDatetime", "POSIXct2D",     (DL_FUNC) &POSIXct2D);
     R_RegisterCCallable("RApiDatetime", "D2POSIXlt",     (DL_FUNC) &D2POSIXlt);
 
     R_registerRoutines(info,
