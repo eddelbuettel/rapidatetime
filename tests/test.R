@@ -20,3 +20,4 @@ str(rapiD2POSIXlt(rapiPOSIXlt2D(X)))
 str(rapiFormatPOSIXlt(X, "%Y-%b-%d %H:%M:%OS"))
 str(rapiFormatPOSIXlt(X, "%Y-%b-%d %H:%M:%OS", TRUE))
 
+str(asDatePOSIXct(.POSIXct(1540181413, "America/Chicago")))

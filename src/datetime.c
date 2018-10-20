@@ -1314,3 +1314,78 @@ SEXP POSIXlt2D(SEXP sxparg)
     UNPROTECT(3);
     return ans;
 }
+
+/* Convert POSIXct to Date
+ *
+ * This is a combination of asPOSIXlt and POSIXlt2D that avoids some overhead
+ * when as.Date() is called on a POSIXct object with a non-UTC timezone. It
+ * avoids the intermediate (memory-inefficient) allocation to POSIXlt by
+ * re-using one tm struct instance for all POSIXct elements.
+ *
+ * Author: RCore for asPOSIXlt and POSIXlt2D.
+ *         Joshua Ulrich for the mashup.
+ */
+SEXP POSIXct2D(SEXP argsxp, SEXP tzarg)
+{
+    SEXP stz, x = argsxp, klass;
+    int isgmt = 0, valid = 0, settz = 0;
+    char oldtz[1001] = "";
+    const char *tz = NULL;
+
+    if (!isString((stz = tzarg)) || LENGTH(stz) != 1)
+        error("invalid '%s' value", "tz");
+    tz = CHAR(STRING_ELT(stz, 0));
+    if(strlen(tz) == 0) {
+	/* do a direct look up here as this does not otherwise
+	   work on Windows */
+	char *p = getenv("TZ");
+	if(p) {
+	    stz = mkString(p); /* make a copy */
+	    tz = CHAR(STRING_ELT(stz, 0));
+	}
+    }
+    PROTECT(stz); /* it might be new */
+    if(strcmp(tz, "GMT") == 0  || strcmp(tz, "UTC") == 0) isgmt = 1;
+    if(!isgmt && strlen(tz) > 0) settz = set_tz(tz, oldtz);
+#ifdef USE_INTERNAL_MKTIME
+    else R_tzsetwall(); // to get the system timezone recorded
+#else
+    tzset();
+#endif
+
+    R_xlen_t n = XLENGTH(x);
+
+    SEXP date_ans = PROTECT(allocVector(INTSXP, n));
+    int* date_ans_ = INTEGER(date_ans);
+    double* x_ = REAL(x);
+
+    for(R_xlen_t i = 0; i < n; i++) {
+	stm dummy, *ptm = &dummy;
+	double d = x_[i];
+	if(R_FINITE(d)) {
+	    ptm = localtime0(&d, 1 - isgmt, &dummy);
+	    /* in theory localtime/gmtime always return a valid
+	       struct tm pointer, but Windows uses NULL for error
+	       conditions (like negative times). */
+	    valid = (ptm != NULL);
+	} else {
+            valid = 0;
+        }
+
+        if(valid) {
+	    ptm->tm_sec = ptm->tm_min = ptm->tm_hour = 0;
+	    ptm->tm_isdst = 0;
+	    /* -1 must be error as seconds were zeroed */
+	    double tmp = mktime00(ptm);
+	    date_ans_[i] = (tmp == -1) ? NA_INTEGER : tmp/86400;
+        } else {
+	    date_ans_[i] = NA_INTEGER;
+	}
+    }
+
+    if(settz) reset_tz(oldtz);
+    PROTECT(klass = mkString("Date"));
+    classgets(date_ans, klass);
+    UNPROTECT(3);
+    return date_ans;
+}
