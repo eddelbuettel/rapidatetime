@@ -739,7 +739,7 @@ strptime_internal (const char *rp, const char *fmt, stm *tm,
 
 	/* We need this for handling the `E' modifier.  */
     start_over:
-
+								/* #nocov start */ 
 	switch (*fmt++)                                      
 	{
 	case '%':
@@ -1155,7 +1155,7 @@ strptime_internal (const char *rp, const char *fmt, stm *tm,
 
       tm->tm_wday = save_wday;
   }
-
+								/* #nocov end */ 
     return (char *) rp;
 }
 
