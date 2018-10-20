@@ -739,8 +739,8 @@ strptime_internal (const char *rp, const char *fmt, stm *tm,
 
 	/* We need this for handling the `E' modifier.  */
     start_over:
-
-	switch (*fmt++)
+								/* #nocov start */ 
+	switch (*fmt++)                                      
 	{
 	case '%':
 	    /* Match the `%' character itself.  */
@@ -1155,7 +1155,7 @@ strptime_internal (const char *rp, const char *fmt, stm *tm,
 
       tm->tm_wday = save_wday;
   }
-
+								/* #nocov end */ 
     return (char *) rp;
 }
 
@@ -1165,7 +1165,7 @@ strptime_internal (const char *rp, const char *fmt, stm *tm,
   if nl_langinfo() has wchar_t versions (some OSes do, some do not).
 */
 
-attribute_hidden
+attribute_hidden                				/* #nocov start */ 
 void dt_invalidate_locale() // used in platform.c
 {
     locale_strings_set = 0;
@@ -1211,7 +1211,7 @@ static void get_locale_strings(void)
     buff[DT_BUFSIZE-1] = '\0';
     if(strlen(buff)) strcpy(am_pm[1], buff);
     locale_strings_set = 1;
-}
+}								/* #nocov end */ 
 
 #if defined(HAVE_WCSTOD) && defined(HAVE_WCSFTIME)
 static void get_locale_w_strings(void)

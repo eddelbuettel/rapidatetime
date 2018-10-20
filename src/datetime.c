@@ -1,6 +1,6 @@
 /*
  *  R : A Computer Language for Statistical Data Analysis
- *  Copyright (C) 2000-2016  The R Core Team.
+ *  Copyright (C) 2000-2017  The R Core Team.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,10 +39,18 @@
 
 #include <Rmath.h> // Rexp10
 
-// some other header, e.g. math.h, might define it
-#if defined(__GLIBC__) && !defined(_BSD_SOURCE)
-// to get tm_zone, tm_gmtoff defined
-# define _BSD_SOURCE
+// to get tm_zone, tm_gmtoff defined in glibc.
+// some other header, e.g. math.h, might define the macro.
+#if defined HAVE_FEATURES_H
+# include <features.h>
+# ifdef __GNUC_PREREQ
+#  if __GNUC_PREREQ(2,20) && !defined(_DEFAULT_SOURCE_)
+#   define _DEFAULT_SOURCE 1
+#  endif
+# endif
+#endif
+#if defined(HAVE_GLIBC2) && !defined(_DEFAULT_SOURCE_) && !defined(_BSD_SOURCE)
+# define _BSD_SOURCE 1
 #endif
 #include <time.h>
 
@@ -314,7 +322,7 @@ static const time_t leapseconds[] = // dput(unclass(.leap.seconds)) :
    915148800,1136073600,1230768000,1341100800,1435708800,1483228800};
 #endif
 
-static double guess_offset (stm *tm)
+static double guess_offset (stm *tm)					/* #nocov start */ 
 {
     double offset, offset1, offset2;
     int i, wday, year, oldmonth, oldisdst, oldmday;
@@ -431,7 +439,7 @@ static double mktime0 (stm *tm, const int local)
 	return res;
 /* watch the side effect here: both calls alter their arg */
     } else return guess_offset(tm) + mktime00(tm);
-}
+}								/* #nocov end */ 
 
 /* Interface for localtime or gmtime or internal substitute */
 static stm * localtime0(const double *tp, const int local, stm *ltm)
@@ -467,7 +475,7 @@ static stm * localtime0(const double *tp, const int local, stm *ltm)
 
     /* internal substitute code.
        Like localtime, this returns a pointer to a static struct tm */
-
+									/* #nocov start */ 
     int day = (int) floor(d/86400.0);
     int left = (int) (d - day * 86400.0 + 1e-6); // allow for fractional secs
 
@@ -539,7 +547,7 @@ static stm * localtime0(const double *tp, const int local, stm *ltm)
     } else {
 	res->tm_isdst = 0; /* no dst in GMT */
 	return res;
-    }
+    }								/* #nocov end */ 
 }
 #endif
 
@@ -598,7 +606,7 @@ static void reset_tz(char *tz)
     tzset();
 }
 
-static void glibc_fix(stm *tm, int *invalid)
+static void glibc_fix(stm *tm, int *invalid) 			/* #nocov start */ 
 {
     /* set mon and mday which glibc does not always set.
        Use current year/... if none has been specified.
@@ -639,7 +647,7 @@ static void glibc_fix(stm *tm, int *invalid)
 	}
 	if(tm->tm_mon == NA_INTEGER) tm->tm_mon = tm0->tm_mon;
     }
-}
+}								/* #nocov end */ 
 
 
 static const char ltnames [][7] =
@@ -931,7 +939,14 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
     if(n > 0) N = (m > n) ? m:n; else N = 0;
     PROTECT(ans = allocVector(STRSXP, N));
     char tm_zone[20];
-    Rboolean have_zone = LENGTH(x) >= 10 && LENGTH(VECTOR_ELT(x, 9)) == n;
+#ifdef HAVE_TM_GMTOFF
+    Rboolean have_zone = LENGTH(x) >= 11 && XLENGTH(VECTOR_ELT(x, 9)) == n &&
+	XLENGTH(VECTOR_ELT(x, 10)) == n;
+#else
+    Rboolean have_zone = LENGTH(x) >= 10 && XLENGTH(VECTOR_ELT(x, 9)) == n;
+#endif
+    if(have_zone && !isString(VECTOR_ELT(x, 9)))
+	error("invalid component [[10]] in \"POSIXlt\" should be 'zone'");
     for(R_xlen_t i = 0; i < N; i++) {
 	double secs = REAL(VECTOR_ELT(x, 0))[i%nlen[0]], fsecs = floor(secs);
 	// avoid (int) NAN
@@ -964,74 +979,78 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 	   tm.tm_hour == NA_INTEGER || tm.tm_mday == NA_INTEGER ||
 	   tm.tm_mon == NA_INTEGER || tm.tm_year == NA_INTEGER) {
 	    SET_STRING_ELT(ans, i, NA_STRING);
+	} else if(validate_tm(&tm) < 0) {
+	    SET_STRING_ELT(ans, i, NA_STRING);
 	} else {
-	    if(validate_tm(&tm) < 0) SET_STRING_ELT(ans, i, NA_STRING);
-	    else {
-		const char *q = translateChar(STRING_ELT(sformat, i%m));
-		int n = (int) strlen(q) + 50;
-		char buf2[n];
-		const char *p;
+	    const char *q = translateChar(STRING_ELT(sformat, i%m));
+	    int nn = (int) strlen(q) + 50;
+	    char buf2[nn];
+	    const char *p;
 #ifdef OLD_Win32
-		/* We want to override Windows' TZ names */
-		p = strstr(q, "%Z");
-		if (p) {
-		    memset(buf2, 0, n);
-		    strncpy(buf2, q, p - q);
-		    if(have_zone) 
-			strcat(buf2, tm_zone);
-		    else
-			strcat(buf2, tm.tm_isdst > 0 ? R_tzname[1] : R_tzname[0]);
-		    strcat(buf2, p+2);
-		} else
+	    /* We want to override Windows' TZ names */
+	    p = strstr(q, "%Z");
+	    if (p) {
+		memset(buf2, 0, nn);
+		strncpy(buf2, q, p - q);
+		if(have_zone)
+		    strcat(buf2, tm_zone);
+		else
+		    strcat(buf2, tm.tm_isdst > 0 ? R_tzname[1] : R_tzname[0]);
+		strcat(buf2, p+2);
+	    } else
 #endif
-		    strcpy(buf2, q);
+		strcpy(buf2, q);
 
-		p = strstr(q, "%OS");
-		if(p) {
-		    /* FIXME some of this should be outside the loop */
-		    int ns, nused = 4;
-		    char *p2 = strstr(buf2, "%OS");
-		    *p2 = '\0';
-		    ns = *(p+3) - '0';
-		    if(ns < 0 || ns > 9) { /* not a digit */
-			ns = asInteger(GetOption1(install("digits.secs")));
-			if(ns == NA_INTEGER) ns = 0;
-			nused = 3;
-		    }
-		    if(ns > 6) ns = 6;
-		    if(ns > 0) {
-			/* truncate to avoid nuisances such as PR#14579 */
-			double s = secs, t = Rexp10((double) ns);
-			s = ((int) (s*t))/t;
-			sprintf(p2, "%0*.*f", ns+3, ns, s);
-			strcat(buf2, p+nused);
-		    } else {
-			strcat(p2, "%S");
-			strcat(buf2, p+nused);
-		    }
+	    p = strstr(q, "%OS");
+	    if(p) {
+		/* FIXME some of this should be outside the loop */
+		int ns, nused = 4;
+		char *p2 = strstr(buf2, "%OS");
+		*p2 = '\0';
+		ns = *(p+3) - '0';
+		if(ns < 0 || ns > 9) { /* not a digit */
+		    ns = asInteger(GetOption1(install("digits.secs")));
+		    if(ns == NA_INTEGER) ns = 0;
+		    nused = 3;
 		}
-#ifdef USE_INTERNAL_MKTIME
-		R_strftime(buff, 256, buf2, &tm);
-#else
-		strftime(buff, 256, buf2, &tm);
-#endif
-		if(UseTZ) {
-		    if(LENGTH(x) >= 10) {
-			const char *p = CHAR(STRING_ELT(VECTOR_ELT(x, 9), i));
-			if(strlen(p)) {strcat(buff, " "); strcat(buff, p);}
-		    } else if(!isNull(tz)) {
-			int ii = 0;
-			if(LENGTH(tz) == 3) {
-			    if(tm.tm_isdst > 0) ii = 2;
-			    else if(tm.tm_isdst == 0) ii = 1;
-			    else ii = 0; /* Use base timezone name */
-			}
-			const char *p = CHAR(STRING_ELT(tz, ii));
-			if(strlen(p)) {strcat(buff, " "); strcat(buff, p);}
-		    }
+		if(ns > 6) ns = 6;
+		if(ns > 0) {
+		    /* truncate to avoid nuisances such as PR#14579 */
+		    double s = secs, t = Rexp10((double) ns);
+		    s = ((int) (s*t))/t;
+		    sprintf(p2, "%0*.*f", ns+3, ns, s);
+		    strcat(buf2, p+nused);
+		} else {
+		    strcat(p2, "%S");
+		    strcat(buf2, p+nused);
 		}
-		SET_STRING_ELT(ans, i, mkChar(buff));
 	    }
+	    // The overflow behaviour is not determined by C99.
+	    // We assume truncation, and ensure termination.
+#ifdef USE_INTERNAL_MKTIME
+	    R_strftime(buff, 256, buf2, &tm);
+#else
+	    strftime(buff, 256, buf2, &tm);
+#endif
+	    buff[256] = '\0';
+	    // Now assume tzone abbreviated name is < 40 bytes,
+	    // but they are currently 3 or 4 bytes.
+	    if(UseTZ) {
+		if(have_zone) {
+		    const char *p = CHAR(STRING_ELT(VECTOR_ELT(x, 9), i%n));
+		    if(strlen(p)) {strcat(buff, " "); strcat(buff, p);}
+		} else if(!isNull(tz)) {
+		    int ii = 0;
+		    if(LENGTH(tz) == 3) {
+			if(tm.tm_isdst > 0) ii = 2;
+			else if(tm.tm_isdst == 0) ii = 1;
+			else ii = 0; /* Use base timezone name */
+		    }
+		    const char *p = CHAR(STRING_ELT(tz, ii));
+		    if(strlen(p)) {strcat(buff, " "); strcat(buff, p);}
+		}
+	    }
+	    SET_STRING_ELT(ans, i, mkChar(buff));
 	}
     }
     if(settz) reset_tz(oldtz);

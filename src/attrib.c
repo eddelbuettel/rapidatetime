@@ -11,6 +11,8 @@ SEXP installAttrib(SEXP vec, SEXP name, SEXP val)
 
     if(TYPEOF(vec) == CHARSXP)
 	error("cannot set attribute on a CHARSXP");
+    if (TYPEOF(vec) == SYMSXP)
+	error("cannot set attribute on a symbol");
     /* this does no allocation */
     for (SEXP s = ATTRIB(vec); s != R_NilValue; s = CDR(s)) {
 	if (TAG(s) == name) {
@@ -19,8 +21,10 @@ SEXP installAttrib(SEXP vec, SEXP name, SEXP val)
 	}
 	t = s; // record last attribute, if any
     }
-    /* The usual convention is that the caller protects, 
-       so this is historical over-cautiousness */
+
+    /* The usual convention is that the caller protects,
+       but a lot of existing code depends assume that
+       setAttrib/installAttrib protects its arguments */
     PROTECT(vec); PROTECT(name); PROTECT(val);
     SEXP s = CONS(val, R_NilValue);
     SET_TAG(s, name);
