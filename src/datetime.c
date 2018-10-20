@@ -322,7 +322,7 @@ static const time_t leapseconds[] = // dput(unclass(.leap.seconds)) :
    915148800,1136073600,1230768000,1341100800,1435708800,1483228800};
 #endif
 
-static double guess_offset (stm *tm)
+static double guess_offset (stm *tm)					/* #nocov start */ 
 {
     double offset, offset1, offset2;
     int i, wday, year, oldmonth, oldisdst, oldmday;
@@ -439,7 +439,7 @@ static double mktime0 (stm *tm, const int local)
 	return res;
 /* watch the side effect here: both calls alter their arg */
     } else return guess_offset(tm) + mktime00(tm);
-}
+}								/* #nocov end */ 
 
 /* Interface for localtime or gmtime or internal substitute */
 static stm * localtime0(const double *tp, const int local, stm *ltm)
@@ -475,7 +475,7 @@ static stm * localtime0(const double *tp, const int local, stm *ltm)
 
     /* internal substitute code.
        Like localtime, this returns a pointer to a static struct tm */
-
+									/* #nocov start */ 
     int day = (int) floor(d/86400.0);
     int left = (int) (d - day * 86400.0 + 1e-6); // allow for fractional secs
 
@@ -547,7 +547,7 @@ static stm * localtime0(const double *tp, const int local, stm *ltm)
     } else {
 	res->tm_isdst = 0; /* no dst in GMT */
 	return res;
-    }
+    }								/* #nocov end */ 
 }
 #endif
 
@@ -606,7 +606,7 @@ static void reset_tz(char *tz)
     tzset();
 }
 
-static void glibc_fix(stm *tm, int *invalid)
+static void glibc_fix(stm *tm, int *invalid) 			/* #nocov start */ 
 {
     /* set mon and mday which glibc does not always set.
        Use current year/... if none has been specified.
@@ -647,7 +647,7 @@ static void glibc_fix(stm *tm, int *invalid)
 	}
 	if(tm->tm_mon == NA_INTEGER) tm->tm_mon = tm0->tm_mon;
     }
-}
+}								/* #nocov end */ 
 
 
 static const char ltnames [][7] =
