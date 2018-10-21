@@ -10,14 +10,14 @@ SEXP installAttrib(SEXP vec, SEXP name, SEXP val)
     SEXP t = R_NilValue; /* -Wall */
 
     if(TYPEOF(vec) == CHARSXP)
-	error("cannot set attribute on a CHARSXP");
+	error("cannot set attribute on a CHARSXP"); 		/* #nocov */
     if (TYPEOF(vec) == SYMSXP)
-	error("cannot set attribute on a symbol");
+	error("cannot set attribute on a symbol"); 		/* #nocov */
     /* this does no allocation */
     for (SEXP s = ATTRIB(vec); s != R_NilValue; s = CDR(s)) {
 	if (TAG(s) == name) {
-	    SETCAR(s, val);
-	    return val;
+	    SETCAR(s, val); 					/* #nocov */
+	    return val; 					/* #nocov */
 	}
 	t = s; // record last attribute, if any
     }

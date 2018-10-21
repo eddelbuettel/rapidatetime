@@ -141,51 +141,51 @@ static int validate_tm (stm *tm)
     int tmp, res = 0;
 
     if (tm->tm_sec < 0 || tm->tm_sec > 60) { /* 61 POSIX, 60 draft ISO C */
-	res++;
+	res++; 							/* #nocov start */
 	tmp = tm->tm_sec/60;
 	tm->tm_sec -= 60 * tmp; tm->tm_min += tmp;
 	if(tm->tm_sec < 0) {tm->tm_sec += 60; tm->tm_min--;}
     }
 
     if (tm->tm_min < 0 || tm->tm_min > 59) {
-	res++;
+	res++; 							/* #nocov start */
 	tmp = tm->tm_min/60;
 	tm->tm_min -= 60 * tmp; tm->tm_hour += tmp;
-	if(tm->tm_min < 0) {tm->tm_min += 60; tm->tm_hour--;}
+	if(tm->tm_min < 0) {tm->tm_min += 60; tm->tm_hour--;}	/* #nocov end */
     }
 
     if(tm->tm_hour == 24 && tm->tm_min == 0 && tm->tm_sec == 0) {
-	tm->tm_hour = 0; tm->tm_mday++;
+	tm->tm_hour = 0; tm->tm_mday++; 			/* #nocov start */
 	if(tm->tm_mon >= 0 && tm->tm_mon <= 11) {
 	    if(tm->tm_mday > days_in_month[tm->tm_mon] +
 	       ((tm->tm_mon==1 && isleap(1900+tm->tm_year) ? 1 : 0))) {
 		   tm->tm_mon++; tm->tm_mday = 1;
 		   if(tm->tm_mon == 12) {
 		       tm->tm_year++; tm->tm_mon = 0;
-		   }
+		   }						/* #nocov end */
 	       }
 	}
     }
     if (tm->tm_hour < 0 || tm->tm_hour > 23) {
-	res++;
+	res++; 							/* #nocov start */
 	tmp = tm->tm_hour/24;
 	tm->tm_hour -= 24 * tmp; tm->tm_mday += tmp;
-	if(tm->tm_hour < 0) {tm->tm_hour += 24; tm->tm_mday--;}
+	if(tm->tm_hour < 0) {tm->tm_hour += 24; tm->tm_mday--;}	/* #nocov end */
     }
 
     /* defer fixing mday until we know the year */
     if (tm->tm_mon < 0 || tm->tm_mon > 11) {
-	res++;
+	res++; 							/* #nocov start */
 	tmp = tm->tm_mon/12;
 	tm->tm_mon -= 12 * tmp; tm->tm_year += tmp;
-	if(tm->tm_mon < 0) {tm->tm_mon += 12; tm->tm_year--;}
+	if(tm->tm_mon < 0) {tm->tm_mon += 12; tm->tm_year--;} 	/* #nocov end */
     }
 
     /* A limit on the loops of about 3000x round */
     if(tm->tm_mday < -1000000 || tm->tm_mday > 1000000) return -1;
 
     if(abs(tm->tm_mday) > 366) {
-	res++;
+	res++; 							/* #nocov start */
 	/* first spin back until January */
 	while(tm->tm_mon > 0) {
 	    --tm->tm_mon;
@@ -200,22 +200,22 @@ static int validate_tm (stm *tm)
 	while(tm->tm_mday >
 	      (tmp = 365 + (isleap(1900+tm->tm_year)? 1 : 0))) {
 	    tm->tm_mday -= tmp; tm->tm_year++;
-	}
+	} 							/* #nocov end */
     }
 
     while(tm->tm_mday < 1) {
-	res++;
+	res++; 							/* #nocov start */
 	if(--tm->tm_mon < 0) {tm->tm_mon += 12; tm->tm_year--;}
 	tm->tm_mday += days_in_month[tm->tm_mon] +
 	    ((tm->tm_mon==1 && isleap(1900+tm->tm_year))? 1 : 0);
-    }
+    } 								/* #nocov end */
 
     while(tm->tm_mday >
 	  (tmp = days_in_month[tm->tm_mon] +
 	   ((tm->tm_mon==1 && isleap(1900+tm->tm_year))? 1 : 0))) {
-	res++;
+	res++; 							/* #nocov start */
 	if(++tm->tm_mon > 11) {tm->tm_mon -= 12; tm->tm_year++;}
-	tm->tm_mday -= tmp;
+	tm->tm_mday -= tmp; 					/* #nocov end */
     }
     return res;
 }
@@ -231,13 +231,13 @@ static double mktime00 (stm *tm)
     day = tm->tm_mday - 1;
     year0 = 1900 + tm->tm_year;
     /* safety check for unbounded loops */
-    if (year0 > 3000) {
+    if (year0 > 3000) {						/* #nocov start */
 	excess = (int)(year0/2000) - 1;
 	year0 -= (int)(excess * 2000);
     } else if (year0 < 0) {
 	excess = -1 - (int)(-year0/2000);
 	year0 -= (int)(excess * 2000);
-    }
+    }								/* #nocov end */
 
     for(int i = 0; i < tm->tm_mon; i++) day += days_in_month[i];
     if (tm->tm_mon > 1 && isleap(year0)) day++;
@@ -560,7 +560,7 @@ static int set_tz(const char *tz, char *oldtz)
     p = getenv("TZ");
     if(p) {
 	if (strlen(p) > 1000)
-	    error("time zone specification is too long");
+	    error("time zone specification is too long");	/* #nocov */
 	strcpy(oldtz, p);
     }
 #ifdef HAVE_SETENV
@@ -570,7 +570,7 @@ static int set_tz(const char *tz, char *oldtz)
     {
 	static char buff[1010];
 	if (strlen(tz) > 1000)
-	    error("time zone specification is too long");
+	    error("time zone specification is too long");	/* #nocov */
 	strcpy(buff, "TZ="); strcat(buff, tz);
 	if(putenv(buff)) warning("problem with setting timezone");
     }
@@ -669,10 +669,10 @@ makelt(stm *tm, SEXP ans, R_xlen_t i, int valid, double frac_secs)
 	INTEGER(VECTOR_ELT(ans, 7))[i] = tm->tm_yday;
 	INTEGER(VECTOR_ELT(ans, 8))[i] = tm->tm_isdst;
     } else {
-	REAL(VECTOR_ELT(ans, 0))[i] = NA_REAL;
+	REAL(VECTOR_ELT(ans, 0))[i] = NA_REAL;			/* #nocov start */
 	for(int j = 1; j < 8; j++)
 	    INTEGER(VECTOR_ELT(ans, j))[i] = NA_INTEGER;
-	INTEGER(VECTOR_ELT(ans, 8))[i] = -1;
+	INTEGER(VECTOR_ELT(ans, 8))[i] = -1;			/* #nocov end */
     }
 }
 
@@ -695,7 +695,7 @@ SEXP asPOSIXlt(SEXP argsxp, SEXP tzarg) // other args?
     /*     error("invalid '%s' value", "tz"); */
     /* tz = CHAR(STRING_ELT(stz, 0)); */
     if (!isString((stz = tzarg)) || LENGTH(stz) != 1)
-        error("invalid '%s' value", "tz");
+        error("invalid '%s' value", "tz");			/* #nocov */
     tz = CHAR(STRING_ELT(stz, 0));
     if(strlen(tz) == 0) {
 	/* do a direct look up here as this does not otherwise
@@ -717,7 +717,7 @@ SEXP asPOSIXlt(SEXP argsxp, SEXP tzarg) // other args?
 
     // localtime may change tzname.
     if (isgmt) {
-	PROTECT(tzone = mkString(tz));
+	PROTECT(tzone = mkString(tz));				/* #nocov */
     } else {
 	PROTECT(tzone = allocVector(STRSXP, 3));
 	SET_STRING_ELT(tzone, 0, mkChar(tz));
@@ -754,7 +754,7 @@ SEXP asPOSIXlt(SEXP argsxp, SEXP tzarg) // other args?
 	       struct tm pointer, but Windows uses NULL for error
 	       conditions (like negative times). */
 	    valid = (ptm != NULL);
-	} else valid = 0;
+	} else valid = 0;				/* #nocov */
 	makelt(ptm, ans, i, valid, d - floor(d));
 	if(!isgmt) {
 	    char *p = "";
@@ -796,10 +796,10 @@ SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
     /* PROTECT(x = duplicate(CAR(args))); /\* coerced below *\/ */
     PROTECT(x = duplicate(sxparg)); /* coerced below */ 
     if (!isVectorList(x) || LENGTH(x) < 9)
-        error("invalid '%s' argument", "x");
+        error("invalid '%s' argument", "x");			/* #nocov */
     /* if(!isString((stz = CADR(args))) || LENGTH(stz) != 1) */
     if (!isString((stz = tzarg)) || LENGTH(stz) != 1)
-        error("invalid '%s' value", "tz");
+        error("invalid '%s' value", "tz");			/* #nocov */
 
     tz = CHAR(STRING_ELT(stz, 0));
     if(strlen(tz) == 0) {
@@ -826,9 +826,9 @@ SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
     if(n > 0) {
 	for(int i = 0; i < 6; i++)
 	    if(nlen[i] == 0)
-		error("zero-length component in non-empty \"POSIXlt\" structure");
+		error("zero-length component in non-empty \"POSIXlt\" structure"); /* #nocov */
 	if(nlen[8] == 0)
-	    error("zero-length component in non-empty \"POSIXlt\" structure");
+	    error("zero-length component in non-empty \"POSIXlt\" structure");	   /* #nocov */
     }
     /* coerce fields to integer or real */
     SET_VECTOR_ELT(x, 0, coerceVector(VECTOR_ELT(x, 0), REALSXP));
@@ -852,7 +852,7 @@ SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
 	if(!R_FINITE(secs) || tm.tm_min == NA_INTEGER ||
 	   tm.tm_hour == NA_INTEGER || tm.tm_mday == NA_INTEGER ||
 	   tm.tm_mon == NA_INTEGER || tm.tm_year == NA_INTEGER)
-	    REAL(ans)[i] = NA_REAL;
+	    REAL(ans)[i] = NA_REAL;					/* #nocov */
 	else {
 	    errno = 0;
 	    tmp = mktime0(&tm, 1 - isgmt);
@@ -861,8 +861,8 @@ SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
 #else
 	    REAL(ans)[i] = ((tmp == -1.)
 			    /* avoid silly gotcha at epoch minus one sec */
-			    && (tm.tm_sec != 59)
-			    && ((tm.tm_sec = 58), (mktime0(&tm, 1 - isgmt) != -2.))
+			    && (tm.tm_sec != 59)					/* #nocov */
+			    && ((tm.tm_sec = 58), (mktime0(&tm, 1 - isgmt) != -2.))	/* #nocov */
 			    ) ?
 	      NA_REAL : tmp + (secs - fsecs);
 #endif
@@ -895,15 +895,15 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
     /* PROTECT(x = duplicate(CAR(args))); /\* coerced below *\/ */
     PROTECT(x = duplicate(argsxp)); /* coerced below */ 
     if (!isVectorList(x) || LENGTH(x) < 9)
-        error("invalid '%s' argument", "x");
+        error("invalid '%s' argument", "x");					/* #nocov */
     /* if(!isString((sformat = CADR(args))) || XLENGTH(sformat) == 0) */
     if (!isString((sformat = fmtsxp)) || XLENGTH(sformat) == 0)
-        error("invalid '%s' argument", "format");
+        error("invalid '%s' argument", "format");				/* #nocov */
     m = XLENGTH(sformat);
     /* UseTZ = asLogical(CADDR(args)); */
     UseTZ = asLogical(tzsxp);
     if (UseTZ == NA_LOGICAL)
-	error("invalid '%s' argument", "usetz");
+	error("invalid '%s' argument", "usetz");				/* #nocov */
     tz = getAttrib(x, install("tzone"));
 
     const char *tz1;
@@ -934,7 +934,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
     if(n > 0) {
 	for(int i = 0; i < 9; i++)
 	    if(nlen[i] == 0)
-		error("zero-length component in non-empty \"POSIXlt\" structure");
+		error("zero-length component in non-empty \"POSIXlt\" structure");	/* #nocov */
     }
     if(n > 0) N = (m > n) ? m:n; else N = 0;
     PROTECT(ans = allocVector(STRSXP, N));
@@ -946,7 +946,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
     Rboolean have_zone = LENGTH(x) >= 10 && XLENGTH(VECTOR_ELT(x, 9)) == n;
 #endif
     if(have_zone && !isString(VECTOR_ELT(x, 9)))
-	error("invalid component [[10]] in \"POSIXlt\" should be 'zone'");
+	error("invalid component [[10]] in \"POSIXlt\" should be 'zone'");		/* #nocov */
     for(R_xlen_t i = 0; i < N; i++) {
 	double secs = REAL(VECTOR_ELT(x, 0))[i%nlen[0]], fsecs = floor(secs);
 	// avoid (int) NAN
@@ -978,9 +978,9 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 	if(!R_FINITE(secs) || tm.tm_min == NA_INTEGER ||
 	   tm.tm_hour == NA_INTEGER || tm.tm_mday == NA_INTEGER ||
 	   tm.tm_mon == NA_INTEGER || tm.tm_year == NA_INTEGER) {
-	    SET_STRING_ELT(ans, i, NA_STRING);
+	    SET_STRING_ELT(ans, i, NA_STRING);					/* #nocov */
 	} else if(validate_tm(&tm) < 0) {
-	    SET_STRING_ELT(ans, i, NA_STRING);
+	    SET_STRING_ELT(ans, i, NA_STRING);					/* #nocov */
 	} else {
 	    const char *q = translateChar(STRING_ELT(sformat, i%m));
 	    int nn = (int) strlen(q) + 50;
@@ -1021,8 +1021,8 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 		    sprintf(p2, "%0*.*f", ns+3, ns, s);
 		    strcat(buf2, p+nused);
 		} else {
-		    strcat(p2, "%S");
-		    strcat(buf2, p+nused);
+		    strcat(p2, "%S");			/* #nocov */
+		    strcat(buf2, p+nused);		/* #nocov */
 		}
 	    }
 	    // The overflow behaviour is not determined by C99.
@@ -1039,7 +1039,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 		if(have_zone) {
 		    const char *p = CHAR(STRING_ELT(VECTOR_ELT(x, 9), i%n));
 		    if(strlen(p)) {strcat(buff, " "); strcat(buff, p);}
-		} else if(!isNull(tz)) {
+		} else if(!isNull(tz)) {		/* #nocov start */
 		    int ii = 0;
 		    if(LENGTH(tz) == 3) {
 			if(tm.tm_isdst > 0) ii = 2;
@@ -1048,7 +1048,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 		    }
 		    const char *p = CHAR(STRING_ELT(tz, ii));
 		    if(strlen(p)) {strcat(buff, " "); strcat(buff, p);}
-		}
+		}					/* #nocov end */
 	    }
 	    SET_STRING_ELT(ans, i, mkChar(buff));
 	}
@@ -1078,15 +1078,15 @@ SEXP Rstrptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) {
     /* if(!isString((x = CAR(args)))) */
     /*     error(_("invalid '%s' argument"), "x"); */
     if (!isString(x))
-        error("invalid '%s' argument", "x"); 
+        error("invalid '%s' argument", "x"); 				/* #nocov */
     /* if(!isString((sformat = CADR(args))) || XLENGTH(sformat) == 0) */
     /*     error(_("invalid '%s' argument"), "x"); */
     if (!isString(sformat) || XLENGTH(sformat) == 0) 
-        error("invalid '%s' argument", "sformat"); 
+        error("invalid '%s' argument", "sformat");  			/* #nocov */
     /* if(!isString((stz = CADDR(args))) || LENGTH(stz) != 1) */
     /*     error(_("invalid '%s' value"), "tz"); */
     if (!isString(stz) || LENGTH(stz) != 1) 
-         error("invalid '%s' value", "tz"); 
+         error("invalid '%s' value", "tz");  				/* #nocov */
     tz = CHAR(STRING_ELT(stz, 0)); 
     if (strlen(tz) == 0) {
 	/* do a direct look up here as this does not otherwise
@@ -1108,14 +1108,14 @@ SEXP Rstrptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) {
 
     // in case this gets changed by conversions.
     if (isgmt) {
-	PROTECT(tzone = mkString(tz));
+	PROTECT(tzone = mkString(tz)); 					/* #nocov */
     } else if(strlen(tz)) {
 	PROTECT(tzone = allocVector(STRSXP, 3));
 	SET_STRING_ELT(tzone, 0, mkChar(tz));
 	SET_STRING_ELT(tzone, 1, mkChar(R_tzname[0]));
 	SET_STRING_ELT(tzone, 2, mkChar(R_tzname[1]));
 
-    } else PROTECT(tzone); // for balance
+    } else PROTECT(tzone); // for balance 				/* #nocov */
 
     n = XLENGTH(x); m = XLENGTH(sformat);
     if(n > 0) N = (m > n) ? m : n; else N = 0;
@@ -1161,7 +1161,7 @@ SEXP Rstrptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) {
 	    if(tm.tm_mday == 0) tm.tm_mday = NA_INTEGER;
 	    if(tm.tm_mon == NA_INTEGER || tm.tm_mday == NA_INTEGER
 	       || tm.tm_year == NA_INTEGER)
-		glibc_fix(&tm, &invalid);
+		glibc_fix(&tm, &invalid); 				/* #nocov */
 	    tm.tm_isdst = -1;
 	    if (offset != NA_INTEGER) {
 #ifdef HAVE_TM_GMTOFF
@@ -1171,12 +1171,12 @@ SEXP Rstrptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) {
 		   so all we can do is to convert to time_t,
 		   adjust and convert back */
 		double t0;
-		memcpy(&tm2, &tm, sizeof(stm));
+		memcpy(&tm2, &tm, sizeof(stm)); 			/* #nocov start */
 		t0 = mktime0(&tm2, 0);
 		if (t0 != -1) {
 		    t0 -= offset; /* offset = -0800 is Seattle */
 		    ptm = localtime0(&t0, 1-isgmt, &tm2);
-		} else invalid = 1;
+		} else invalid = 1; 					/* #nocov end */
 	    } else {
 		/* we do want to set wday, yday, isdst, but not to
 		   adjust structure at DST boundaries */
@@ -1251,7 +1251,7 @@ SEXP D2POSIXlt(SEXP argsxp)
 	    if (day >= 0)
 		for ( ; day >= (tmp = days_in_year(y)); day -= tmp, y++);
 	    else
-		for ( ; day < 0; --y, day += days_in_year(y) );
+		for ( ; day < 0; --y, day += days_in_year(y) ); 	/* #nocov */
 
 	    y = tm.tm_year = y - 1900;
 	    tm.tm_yday = day;
@@ -1266,7 +1266,7 @@ SEXP D2POSIXlt(SEXP argsxp)
 	    tm.tm_isdst = 0; /* no dst in GMT */
 
 	    valid = 1;
-	} else valid = 0;
+	} else valid = 0; 						/* #nocov */
 	makelt(&tm, ans, i, valid, 0.0);
     }
     setAttrib(ans, R_NamesSymbol, ansnames);
@@ -1294,7 +1294,7 @@ SEXP POSIXlt2D(SEXP sxparg)
     /* PROTECT(x = duplicate(CAR(args))); */
     PROTECT(x = duplicate(sxparg)); 
     if(!isVectorList(x) || LENGTH(x) < 9) 
-        error("invalid '%s' argument", "x"); 
+        error("invalid '%s' argument", "x");  				/* #nocov */
 
     for(int i = 3; i < 6; i++)
 	if((nlen[i] = XLENGTH(VECTOR_ELT(x, i))) > n) n = nlen[i];
@@ -1302,9 +1302,9 @@ SEXP POSIXlt2D(SEXP sxparg)
     if(n > 0) {
 	for(int i = 3; i < 6; i++)
 	    if(nlen[i] == 0)
-		error("zero-length component in non-empty \"POSIXlt\" structure");
+		error("zero-length component in non-empty \"POSIXlt\" structure");  /* #nocov */
 	if(nlen[8] == 0)
-	    error("zero-length component in non-empty \"POSIXlt\" structure");
+	    error("zero-length component in non-empty \"POSIXlt\" structure");      /* #nocov */
     }
     /* coerce relevant fields to integer */
     for(int i = 3; i < 6; i++)
@@ -1320,7 +1320,7 @@ SEXP POSIXlt2D(SEXP sxparg)
 	tm.tm_isdst = 0;
 	if(tm.tm_mday == NA_INTEGER || tm.tm_mon == NA_INTEGER ||
 	   tm.tm_year == NA_INTEGER || validate_tm(&tm) < 0)
-	    REAL(ans)[i] = NA_REAL;
+	    REAL(ans)[i] = NA_REAL;  					/* #nocov */
 	else {
 	    /* -1 must be error as seconds were zeroed */
 	    double tmp = mktime00(&tm);
@@ -1352,15 +1352,15 @@ SEXP POSIXct2D(SEXP argsxp, SEXP tzarg)
     const char *tz = NULL;
 
     if (!isString((stz = tzarg)) || LENGTH(stz) != 1)
-        error("invalid '%s' value", "tz");
+        error("invalid '%s' value", "tz");  			/* #nocov */
     tz = CHAR(STRING_ELT(stz, 0));
     if(strlen(tz) == 0) {
 	/* do a direct look up here as this does not otherwise
 	   work on Windows */
-	char *p = getenv("TZ");
+	char *p = getenv("TZ");  				/* #nocov start */
 	if(p) {
 	    stz = mkString(p); /* make a copy */
-	    tz = CHAR(STRING_ELT(stz, 0));
+	    tz = CHAR(STRING_ELT(stz, 0));			/* #nocov end */
 	}
     }
     PROTECT(stz); /* it might be new */
@@ -1388,7 +1388,7 @@ SEXP POSIXct2D(SEXP argsxp, SEXP tzarg)
 	       conditions (like negative times). */
 	    valid = (ptm != NULL);
 	} else {
-            valid = 0;
+            valid = 0; 					 /* #nocov */
         }
 
         if(valid) {
@@ -1398,7 +1398,7 @@ SEXP POSIXct2D(SEXP argsxp, SEXP tzarg)
 	    double tmp = mktime00(ptm);
 	    date_ans_[i] = (tmp == -1) ? NA_INTEGER : tmp/86400;
         } else {
-	    date_ans_[i] = NA_INTEGER;
+	    date_ans_[i] = NA_INTEGER;			  /* #nocov */
 	}
     }
 
