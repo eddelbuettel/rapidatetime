@@ -3,7 +3,7 @@
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/rapidatetime/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/rapidatetime/issues/#1}{##1}}
 
-\section{Changes in RApiDatetime version 0.0.4 (2018-xx-yy)}{
+\section{Changes in RApiDatetime version 0.0.4 (2018-10-21)}{
   \itemize{
     \item New function \code{asDatePOSIXct} (Josh Ulrich in \ghpr{2})
     \item Synchronized with upstream code in base R (Dirk in \ghpr{3})
