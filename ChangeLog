@@ -1,3 +1,7 @@
+2018-10-24  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/datetime.c (validate_tm): Add one missing '#nocov end'
+
 2018-10-21  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Version, Date): Release 0.0.4

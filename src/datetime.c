@@ -144,7 +144,7 @@ static int validate_tm (stm *tm)
 	res++; 							/* #nocov start */
 	tmp = tm->tm_sec/60;
 	tm->tm_sec -= 60 * tmp; tm->tm_min += tmp;
-	if(tm->tm_sec < 0) {tm->tm_sec += 60; tm->tm_min--;}
+	if(tm->tm_sec < 0) {tm->tm_sec += 60; tm->tm_min--;}	/* #nocov end */
     }
 
     if (tm->tm_min < 0 || tm->tm_min > 59) {
