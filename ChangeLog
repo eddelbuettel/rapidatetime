@@ -1,3 +1,8 @@
+2019-07-15  Dirk Eddelbuettel  <edd@debian.org>
+
+	* R/datetime.R: Use registered in .Call(), skip package="..."
+	* R/asDatePOSIXct.R: Idem
+
 2018-10-24  Dirk Eddelbuettel  <edd@debian.org>
 
 	* src/datetime.c (validate_tm): Add one missing '#nocov end'

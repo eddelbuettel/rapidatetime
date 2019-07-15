@@ -17,7 +17,7 @@
 ##' x <- rapistrptime("2017-01-02 03:04:05.678", "%Y-%m-%d %H:%M:%OS")
 ##' format(x)
 rapistrptime <- function(x, fmt, tz="") {
-    res <- .Call("Rstrptime", x, fmt, tz, PACKAGE="RApiDatetime")
+    res <- .Call(Rstrptime, x, fmt, tz)
     res
 }
 
@@ -25,7 +25,7 @@ rapistrptime <- function(x, fmt, tz="") {
 ##' @examples
 ##' rapiAsPOSIXlt(as.POSIXct(x))
 rapiAsPOSIXlt <- function(x, tz="") {
-    res <- .Call("asPOSIXlt", x, tz, PACKAGE="RApiDatetime")
+    res <- .Call(asPOSIXlt, x, tz)
     res
 }
 
@@ -33,7 +33,7 @@ rapiAsPOSIXlt <- function(x, tz="") {
 ##' @examples
 ##' rapiAsPOSIXct(x)
 rapiAsPOSIXct <- function(x, tz="") {
-    res <- .Call("asPOSIXct", x, tz, PACKAGE="RApiDatetime")
+    res <- .Call(asPOSIXct, x, tz)
     res
 }
 
@@ -42,20 +42,20 @@ rapiAsPOSIXct <- function(x, tz="") {
 ##' rapiFormatPOSIXlt(x, "%Y-%b-%d %H:%M:%OS")
 ##' options(op)
 rapiFormatPOSIXlt <- function(x, fmt, usetz=FALSE) {
-    res <- .Call("formatPOSIXlt", x, fmt, usetz, PACKAGE="RApiDatetime")
+    res <- .Call(formatPOSIXlt, x, fmt, usetz)
     res
 }
 
 ##' @rdname rapistrptime
 ##' @examples rapiPOSIXlt2D(x)
 rapiPOSIXlt2D <- function(x) {
-    res <- .Call("POSIXlt2D", x, PACKAGE="RApiDatetime")
+    res <- .Call(POSIXlt2D, x)
     res
 }
 
 ##' @rdname rapistrptime
 ##' @examples rapiD2POSIXlt(as.Date("2017-01-02"))
 rapiD2POSIXlt <- function(x) {
-    res <- .Call("D2POSIXlt", x, PACKAGE="RApiDatetime")
+    res <- .Call(D2POSIXlt, x)
     res
 }

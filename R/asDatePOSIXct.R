@@ -22,6 +22,6 @@ asDatePOSIXct <- function(x, tz="") {
     if (missing(tz) && !is.null(tzone)) {
         tz <- tzone
     }
-    res <- .Call("POSIXct2D", x, tz, PACKAGE="RApiDatetime")
+    res <- .Call(POSIXct2D, x, tz)
     res
 }
