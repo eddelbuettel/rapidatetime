@@ -102,6 +102,10 @@ char *R_tzname[2];
 # define HAVE_WORKING_64BIT_MKTIME 1
 #else
 
+// define this to have the field, even if empty / NA
+# undef HAVE_TM_GMTOFF
+# define HAVE_TM_GMTOFF 1
+
 typedef struct tm stm;
 #define R_tzname tzname
 # if defined(__CYGWIN__) || defined(_WIN32)
@@ -116,7 +120,7 @@ extern char *tzname[2];
 /*#include <Defn.h>*/
 /*#include <Internal.h>*/
 #include <string.h>
-#define attribute_hidden  
+#define attribute_hidden
 #define HAVE_PUTENV
 #define Rexp10(x) pow(10.0, x) /* DEdd */
 #include <Rinternals.h>
@@ -322,7 +326,7 @@ static const time_t leapseconds[] = // dput(unclass(.leap.seconds)) :
    915148800,1136073600,1230768000,1341100800,1435708800,1483228800};
 #endif
 
-static double guess_offset (stm *tm)					/* #nocov start */ 
+static double guess_offset (stm *tm)					/* #nocov start */
 {
     double offset, offset1, offset2;
     int i, wday, year, oldmonth, oldisdst, oldmday;
@@ -439,7 +443,7 @@ static double mktime0 (stm *tm, const int local)
 	return res;
 /* watch the side effect here: both calls alter their arg */
     } else return guess_offset(tm) + mktime00(tm);
-}								/* #nocov end */ 
+}								/* #nocov end */
 
 /* Interface for localtime or gmtime or internal substitute */
 static stm * localtime0(const double *tp, const int local, stm *ltm)
@@ -475,7 +479,7 @@ static stm * localtime0(const double *tp, const int local, stm *ltm)
 
     /* internal substitute code.
        Like localtime, this returns a pointer to a static struct tm */
-									/* #nocov start */ 
+									/* #nocov start */
     int day = (int) floor(d/86400.0);
     int left = (int) (d - day * 86400.0 + 1e-6); // allow for fractional secs
 
@@ -547,7 +551,7 @@ static stm * localtime0(const double *tp, const int local, stm *ltm)
     } else {
 	res->tm_isdst = 0; /* no dst in GMT */
 	return res;
-    }								/* #nocov end */ 
+    }								/* #nocov end */
 }
 #endif
 
@@ -606,7 +610,7 @@ static void reset_tz(char *tz)
     tzset();
 }
 
-static void glibc_fix(stm *tm, int *invalid) 			/* #nocov start */ 
+static void glibc_fix(stm *tm, int *invalid) 			/* #nocov start */
 {
     /* set mon and mday which glibc does not always set.
        Use current year/... if none has been specified.
@@ -647,7 +651,7 @@ static void glibc_fix(stm *tm, int *invalid) 			/* #nocov start */
 	}
 	if(tm->tm_mon == NA_INTEGER) tm->tm_mon = tm0->tm_mon;
     }
-}								/* #nocov end */ 
+}								/* #nocov end */
 
 
 static const char ltnames [][7] =
@@ -749,7 +753,7 @@ SEXP asPOSIXlt(SEXP argsxp, SEXP tzarg) // other args?
 	stm dummy, *ptm = &dummy;
 	double d = REAL(x)[i];
 	if(R_FINITE(d)) {
-	    ptm = localtime0(&d, 1 - isgmt, &dummy);
+	    ptm = localtime0(&d, !isgmt, &dummy);
 	    /* in theory localtime/gmtime always return a valid
 	       struct tm pointer, but Windows uses NULL for error
 	       conditions (like negative times). */
@@ -794,7 +798,7 @@ SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
 
     /* checkArity(op, args); */
     /* PROTECT(x = duplicate(CAR(args))); /\* coerced below *\/ */
-    PROTECT(x = duplicate(sxparg)); /* coerced below */ 
+    PROTECT(x = duplicate(sxparg)); /* coerced below */
     if (!isVectorList(x) || LENGTH(x) < 9)
         error("invalid '%s' argument", "x");			/* #nocov */
     /* if(!isString((stz = CADR(args))) || LENGTH(stz) != 1) */
@@ -855,14 +859,14 @@ SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
 	    REAL(ans)[i] = NA_REAL;					/* #nocov */
 	else {
 	    errno = 0;
-	    tmp = mktime0(&tm, 1 - isgmt);
+	    tmp = mktime0(&tm, !isgmt);
 #ifdef MKTIME_SETS_ERRNO
 	    REAL(ans)[i] = errno ? NA_REAL : tmp + (secs - fsecs);
 #else
 	    REAL(ans)[i] = ((tmp == -1.)
 			    /* avoid silly gotcha at epoch minus one sec */
 			    && (tm.tm_sec != 59)					/* #nocov */
-			    && ((tm.tm_sec = 58), (mktime0(&tm, 1 - isgmt) != -2.))	/* #nocov */
+			    && ((tm.tm_sec = 58), (mktime0(&tm, !isgmt) != -2.))	/* #nocov */
 			    ) ?
 	      NA_REAL : tmp + (secs - fsecs);
 #endif
@@ -876,7 +880,7 @@ SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
     SET_STRING_ELT(klass, 0, mkChar("POSIXct"));
     SET_STRING_ELT(klass, 1, mkChar("POSIXt"));
     classgets(ans, klass);
-    
+
     UNPROTECT(4);
     return ans;
 }
@@ -885,7 +889,7 @@ SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
 SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 {
     SEXP x, sformat, ans, tz;
-    R_xlen_t n = 0, m, N, nlen[9];
+    R_xlen_t n = 0, m, N, nlen[11];
     int UseTZ, settz = 0;
     char buff[300];
     char oldtz[1001] = "";
@@ -893,7 +897,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 
     /* checkArity(op, args); */
     /* PROTECT(x = duplicate(CAR(args))); /\* coerced below *\/ */
-    PROTECT(x = duplicate(argsxp)); /* coerced below */ 
+    PROTECT(x = duplicate(argsxp)); /* coerced below */
     if (!isVectorList(x) || LENGTH(x) < 9)
         error("invalid '%s' argument", "x");					/* #nocov */
     /* if(!isString((sformat = CADR(args))) || XLENGTH(sformat) == 0) */
@@ -924,29 +928,33 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
     memset(&tm, 0, sizeof(tm));
 
     /* coerce fields, find length of longest one */
-    for(int i = 0; i < 9; i++) {
+    int nn = imin2(LENGTH(x), 11);
+    for(int i = 0; i < nn; i++) {
 	nlen[i] = XLENGTH(VECTOR_ELT(x, i));
 	if(nlen[i] > n) n = nlen[i];
 	// real for 'sec', the first; integer for the rest:
-	SET_VECTOR_ELT(x, i, coerceVector(VECTOR_ELT(x, i),
-					  i > 0 ? INTSXP : REALSXP));
+	if(i != 9) // real for 'sec', the first; integer for the rest:
+	    SET_VECTOR_ELT(x, i, coerceVector(VECTOR_ELT(x, i),
+					      i > 0 ? INTSXP : REALSXP));
     }
     if(n > 0) {
-	for(int i = 0; i < 9; i++)
+	for(int i = 0; i < nn; i++)
 	    if(nlen[i] == 0)
 		error("zero-length component in non-empty \"POSIXlt\" structure");	/* #nocov */
     }
-    if(n > 0) N = (m > n) ? m:n; else N = 0;
+    N = (n > 0) ? ((m > n) ? m : n) : 0;
     PROTECT(ans = allocVector(STRSXP, N));
     char tm_zone[20];
 #ifdef HAVE_TM_GMTOFF
-    Rboolean have_zone = LENGTH(x) >= 11 && XLENGTH(VECTOR_ELT(x, 9)) == n &&
-	XLENGTH(VECTOR_ELT(x, 10)) == n;
+    Rboolean have_zone = LENGTH(x) >= 11;// and components w/ length >= 1
 #else
-    Rboolean have_zone = LENGTH(x) >= 10 && XLENGTH(VECTOR_ELT(x, 9)) == n;
+    Rboolean have_zone = LENGTH(x) >= 10;
+    Rprintf("DO NOT Have Tm Gmtoff, %d %d\n", have_zone, LENGTH(x));
 #endif
     if(have_zone && !isString(VECTOR_ELT(x, 9)))
 	error("invalid component [[10]] in \"POSIXlt\" should be 'zone'");		/* #nocov */
+    if(!have_zone && LENGTH(x) > 9) // rather even error ?
+	warning("More than 9 list components in \"POSIXlt\" without timezone");
     for(R_xlen_t i = 0; i < N; i++) {
 	double secs = REAL(VECTOR_ELT(x, 0))[i%nlen[0]], fsecs = floor(secs);
 	// avoid (int) NAN
@@ -959,8 +967,8 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 	tm.tm_wday  = INTEGER(VECTOR_ELT(x, 6))[i%nlen[6]];
 	tm.tm_yday  = INTEGER(VECTOR_ELT(x, 7))[i%nlen[7]];
 	tm.tm_isdst = INTEGER(VECTOR_ELT(x, 8))[i%nlen[8]];
-	if(have_zone) {
-	    strncpy(tm_zone, CHAR(STRING_ELT(VECTOR_ELT(x, 9), i%n)), 20);
+	if(have_zone) { // not "UTC", e.g.
+	    strncpy(tm_zone, CHAR(STRING_ELT(VECTOR_ELT(x, 9), i%nlen[9])), 20 - 1);
 	    tm_zone[20 - 1] = '\0';
 #ifdef HAVE_TM_ZONE
 	    tm.tm_zone = tm_zone;
@@ -971,7 +979,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 	    if(tm.tm_isdst >= 0) tzname[tm.tm_isdst] = tm_zone;
 #endif
 #ifdef HAVE_TM_GMTOFF
-	    int tmp = INTEGER(VECTOR_ELT(x, 10))[i%n];
+	    int tmp = INTEGER(VECTOR_ELT(x, 10))[i%nlen[10]];
 	    tm.tm_gmtoff = (tmp == NA_INTEGER) ? 0 : tmp;
 #endif
 	}
@@ -1037,9 +1045,9 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 	    // but they are currently 3 or 4 bytes.
 	    if(UseTZ) {
 		if(have_zone) {
-		    const char *p = CHAR(STRING_ELT(VECTOR_ELT(x, 9), i%n));
+		    const char *p = CHAR(STRING_ELT(VECTOR_ELT(x, 9), i%nlen[9]));
 		    if(strlen(p)) {strcat(buff, " "); strcat(buff, p);}
-		} else if(!isNull(tz)) {		/* #nocov start */
+		} else if(!isNull(tz)) {
 		    int ii = 0;
 		    if(LENGTH(tz) == 3) {
 			if(tm.tm_isdst > 0) ii = 2;
@@ -1081,13 +1089,13 @@ SEXP Rstrptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) {
         error("invalid '%s' argument", "x"); 				/* #nocov */
     /* if(!isString((sformat = CADR(args))) || XLENGTH(sformat) == 0) */
     /*     error(_("invalid '%s' argument"), "x"); */
-    if (!isString(sformat) || XLENGTH(sformat) == 0) 
+    if (!isString(sformat) || XLENGTH(sformat) == 0)
         error("invalid '%s' argument", "sformat");  			/* #nocov */
     /* if(!isString((stz = CADDR(args))) || LENGTH(stz) != 1) */
     /*     error(_("invalid '%s' value"), "tz"); */
-    if (!isString(stz) || LENGTH(stz) != 1) 
+    if (!isString(stz) || LENGTH(stz) != 1)
          error("invalid '%s' value", "tz");  				/* #nocov */
-    tz = CHAR(STRING_ELT(stz, 0)); 
+    tz = CHAR(STRING_ELT(stz, 0));
     if (strlen(tz) == 0) {
 	/* do a direct look up here as this does not otherwise
 	   work on Windows */
@@ -1181,7 +1189,7 @@ SEXP Rstrptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) {
 		/* we do want to set wday, yday, isdst, but not to
 		   adjust structure at DST boundaries */
 		memcpy(&tm2, &tm, sizeof(stm));
-		mktime0(&tm2, 1-isgmt); /* set wday, yday, isdst */
+		mktime0(&tm2, !isgmt); /* set wday, yday, isdst */
 		tm.tm_wday = tm2.tm_wday;
 		tm.tm_yday = tm2.tm_yday;
 		tm.tm_isdst = isgmt ? 0: tm2.tm_isdst;
@@ -1230,10 +1238,10 @@ SEXP D2POSIXlt(SEXP argsxp)
     /* checkArity(op, args); */
     /* PROTECT(x = coerceVector(CAR(args), REALSXP)); */
     PROTECT(x = coerceVector(argsxp, REALSXP));
-    n = XLENGTH(x); 
-    PROTECT(ans = allocVector(VECSXP, 9)); 
-    for(int i = 0; i < 9; i++) 
-        SET_VECTOR_ELT(ans, i, allocVector(i > 0 ? INTSXP : REALSXP, n)); 
+    n = XLENGTH(x);
+    PROTECT(ans = allocVector(VECSXP, 9));
+    for(int i = 0; i < 9; i++)
+        SET_VECTOR_ELT(ans, i, allocVector(i > 0 ? INTSXP : REALSXP, n));
 
     PROTECT(ansnames = allocVector(STRSXP, 9));
     for(int i = 0; i < 9; i++)
@@ -1292,8 +1300,8 @@ SEXP POSIXlt2D(SEXP sxparg)
 
     /* checkArity(op, args); */
     /* PROTECT(x = duplicate(CAR(args))); */
-    PROTECT(x = duplicate(sxparg)); 
-    if(!isVectorList(x) || LENGTH(x) < 9) 
+    PROTECT(x = duplicate(sxparg));
+    if(!isVectorList(x) || LENGTH(x) < 9)
         error("invalid '%s' argument", "x");  				/* #nocov */
 
     for(int i = 3; i < 6; i++)

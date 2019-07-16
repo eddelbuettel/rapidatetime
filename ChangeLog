@@ -3,6 +3,8 @@
 	* R/datetime.R: Use registered in .Call(), skip package="..."
 	* R/asDatePOSIXct.R: Idem
 
+	* src/datetime.c: Updates, define HAVE_TM_GMTOFF even if NA
+
 2018-10-24  Dirk Eddelbuettel  <edd@debian.org>
 
 	* src/datetime.c (validate_tm): Add one missing '#nocov end'
