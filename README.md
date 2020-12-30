@@ -1,6 +1,7 @@
 ## RApiDatetime: R Date and Datetime Functionality at the C Level
 
 [![Build Status](https://travis-ci.org/eddelbuettel/rapidatetime.svg)](https://travis-ci.org/eddelbuettel/rapidatetime) 
+[![CI](https://github.com/eddelbuettel/rapidatetime/workflows/ci/badge.svg)](https://github.com/eddelbuettel/rapidatetime/actions?query=workflow%3Aci)
 [![License](http://img.shields.io/badge/license-GPL%20%28%3E=%202%29-brightgreen.svg?style=flat)](http://www.gnu.org/licenses/gpl-2.0.html) 
 [![CRAN](http://www.r-pkg.org/badges/version/RApiDatetime)](https://cran.r-project.org/package=RApiDatetime) 
 [![Downloads](http://cranlogs.r-pkg.org/badges/RApiDatetime?color=brightgreen)](http://www.r-pkg.org/pkg/RApiDatetime) 
