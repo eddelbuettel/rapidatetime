@@ -10,5 +10,7 @@ Description: Access to the C-level R date and datetime code is provided for
  Client packages simply include a single header 'RApiDatetime.h' provided
  by this package, and also 'import' it.  The R Core group is the original
  author of the code made available with slight modifications by this package. 
+URL: https://github.com/eddelbuettel/rapidatetime, https://dirk.eddelbuettel.com/code/rapidatetime.html
+BugReports: https://github.com/eddelbuettel/rapidatetime/issues
 License: GPL (>= 2)
 RoxygenNote: 6.0.1
