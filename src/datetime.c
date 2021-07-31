@@ -101,9 +101,13 @@ known OS with 64-bit time_t and complete tables is Linux.
 # define HAVE_WORKING_64BIT_MKTIME 1
 #else
 
-// define this to have the field, even if empty / NA
-# undef HAVE_TM_GMTOFF
-# define HAVE_TM_GMTOFF 1
+# if defined(__CYGWIN__) || defined(_WIN32)
+  // nothing, in particular so not define GMTOFF
+# else
+  // define this to have the field, even if empty / NA
+  # undef HAVE_TM_GMTOFF
+  # define HAVE_TM_GMTOFF 1
+#endif
 
 typedef struct tm stm;
 #define R_tzname tzname
