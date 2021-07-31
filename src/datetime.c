@@ -84,7 +84,6 @@ known OS with 64-bit time_t and complete tables is Linux.
 */
 
 
-char *R_tzname[2];
 // #define USE_INTERNAL_MKTIME
 #define HAVE_POSIX_LEAPSECONDS
 
