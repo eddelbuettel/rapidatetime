@@ -5,6 +5,8 @@
 
 	* src/Makevars.win (PKG_CFLAGS): Added
 
+	* .github/workflows/ci.yaml (jobs): Re-enable coverage
+
 2021-07-31  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Date, Version): Roll minor version
