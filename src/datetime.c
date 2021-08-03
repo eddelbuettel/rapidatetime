@@ -961,7 +961,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 	error("invalid component [[10]] in \"POSIXlt\" should be 'zone'");		/* #nocov */
     if(!have_zone && LENGTH(x) > 9) // rather even error ?
         /* never when !HAVE_GMTOFF */
-	warning("More than 9 list components in \"POSIXlt\" without timezone");
+	warning("More than 9 list components in \"POSIXlt\" without timezone");		/* #nocov */
     for(R_xlen_t i = 0; i < N; i++) {
 	double secs = REAL(VECTOR_ELT(x, 0))[i%nlen[0]], fsecs = floor(secs);
 	// avoid (int) NAN
@@ -986,7 +986,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 	       is not specified to have any effect and strftime is documented
 	       to call settz().*/
 	    if(tm.tm_isdst >= 0 && strcmp(tzname[tm.tm_isdst], tm_zone))
-		warning("Timezone specified in the object field cannot be used on this system.");
+		warning("Timezone specified in the object field cannot be used on this system."); /* #nocov */
 #endif
 #ifdef HAVE_TM_GMTOFF
 	    int tmp = INTEGER(VECTOR_ELT(x, 10))[i%nlen[10]];
@@ -1058,7 +1058,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 		if(have_zone) {
 		    const char *p = CHAR(STRING_ELT(VECTOR_ELT(x, 9), i%nlen[9]));
 		    if(strlen(p)) {strcat(buff, " "); strcat(buff, p);}
-		} else if(!isNull(tz)) {
+		} else if(!isNull(tz)) {                                        /* #nocov start */
 		    int ii = 0;
 		    if(LENGTH(tz) == 3) {
 			if(tm.tm_isdst > 0) ii = 2;
@@ -1067,7 +1067,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 		    }
 		    const char *p = CHAR(STRING_ELT(tz, ii));
 		    if(strlen(p)) {strcat(buff, " "); strcat(buff, p);}
-		}					/* #nocov end */
+		}								/* #nocov end */
 	    }
 	    SET_STRING_ELT(ans, i, mkChar(buff));
 	}
@@ -1184,7 +1184,7 @@ SEXP Rstrptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) {
 	    tm.tm_isdst = -1;
 	    if (offset != NA_INTEGER) {
 #ifdef HAVE_TM_GMTOFF
-		tm.tm_gmtoff = offset;
+		tm.tm_gmtoff = offset;					/* #nocov */
 #endif
 		/* we know the offset, but not the timezone
 		   so all we can do is to convert to time_t,
