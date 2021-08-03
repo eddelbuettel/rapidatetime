@@ -1,3 +1,7 @@
+2021-08-03  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/Makevars.win (PKG_CFLAGS): Added
+
 2021-07-31  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Date, Version): Roll minor version
