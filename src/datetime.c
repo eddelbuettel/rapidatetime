@@ -253,10 +253,10 @@ static double mktime00 (stm *tm)
     if (year0 > 1970) {
 	for (year = 1970; year < year0; year++)
 	    day += days_in_year(year);
-    } else if (year0 < 1970) {
+    } else if (year0 < 1970) {                                   /* #nocov start */
 	for (year = 1969; year >= year0; year--)
 	    day -= days_in_year(year);
-    }
+    }								/* #nocov end */
 
     /* weekday: Epoch day was a Thursday */
     if ((tm->tm_wday = (day + 4) % 7) < 0) tm->tm_wday += 7;
@@ -785,7 +785,7 @@ SEXP asPOSIXlt(SEXP argsxp, SEXP tzarg) // other args?
     SEXP nm = getAttrib(x, R_NamesSymbol);
     if(nm != R_NilValue) setAttrib(VECTOR_ELT(ans, 5), R_NamesSymbol, nm);
     if(settz) reset_tz(oldtz);
-    UNPROTECT(5);
+    unprotect(5);               /* DEdd: One commented out so 5 instead of 6 */
     return ans;
 }
 
