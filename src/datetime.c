@@ -1,6 +1,6 @@
 /*
  *  R : A Computer Language for Statistical Data Analysis
- *  Copyright (C) 2000-2017  The R Core Team.
+ *  Copyright (C) 2000-2021  The R Core Team.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
 # include <config.h>
 #endif
 
-#include <Rmath.h> // Rexp10
+#include <Rmath.h> // for imin2()
 
 // to get tm_zone, tm_gmtoff defined in glibc.
 // some other header, e.g. math.h, might define the macro.
@@ -688,6 +688,7 @@ makelt(stm *tm, SEXP ans, R_xlen_t i, int valid, double frac_secs)
 
 // We assume time zone names/abbreviations are ASCII, as all known ones are.
 
+// .Internal(as.POSIXlt(x, tz)) -- called only from  as.POSIXlt.POSIXct()
 //SEXP attribute_hidden do_asPOSIXlt(SEXP call, SEXP op, SEXP args, SEXP env)
 SEXP asPOSIXlt(SEXP argsxp, SEXP tzarg) // other args?
 {
@@ -765,7 +766,7 @@ SEXP asPOSIXlt(SEXP argsxp, SEXP tzarg) // other args?
 	makelt(ptm, ans, i, valid, d - floor(d));
 	if(!isgmt) {
 	    char *p = "";
-	    // or ptm->tm_zone
+	    // or ptm->tm_zone (but not specified by POSIX)
 	    if(valid && ptm->tm_isdst >= 0)
 		p = R_tzname[ptm->tm_isdst];
 	    SET_STRING_ELT(VECTOR_ELT(ans, 9), i, mkChar(p));
@@ -891,8 +892,8 @@ SEXP asPOSIXct(SEXP sxparg, SEXP tzarg) //
 //SEXP attribute_hidden do_formatPOSIXlt(SEXP call, SEXP op, SEXP args, SEXP env)
 SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 {
-    SEXP x, sformat, ans, tz;
-    R_xlen_t n = 0, m, N, nlen[11];
+    SEXP x, sformat, tz;
+    R_xlen_t m;
     int UseTZ, settz = 0;
     char buff[300];
     char oldtz[1001] = "";
@@ -922,6 +923,9 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 	    const char *p = translateChar(STRING_ELT(sformat, i));
 	    if (strstr(p, "%Z") || strstr(p, "%z")) {needTZ = 1; break;}
 	}
+	/* strftime (per POSIX) calls settz(), so we need to set TZ, but
+	   we would not have to call settz() directly (except for the
+	   old OLD_Win32 code) */
 	if(needTZ) settz = set_tz(tz1, oldtz);
     }
 
@@ -931,11 +935,11 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
     memset(&tm, 0, sizeof(tm));
 
     /* coerce fields, find length of longest one */
+    R_xlen_t n = 0, nlen[11];
     int nn = imin2(LENGTH(x), 11);
     for(int i = 0; i < nn; i++) {
 	nlen[i] = XLENGTH(VECTOR_ELT(x, i));
 	if(nlen[i] > n) n = nlen[i];
-	// real for 'sec', the first; integer for the rest:
 	if(i != 9) // real for 'sec', the first; integer for the rest:
 	    SET_VECTOR_ELT(x, i, coerceVector(VECTOR_ELT(x, i),
 					      i > 0 ? INTSXP : REALSXP));
@@ -945,18 +949,18 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 	    if(nlen[i] == 0)
 		error("zero-length component in non-empty \"POSIXlt\" structure");	/* #nocov */
     }
-    N = (n > 0) ? ((m > n) ? m : n) : 0;
-    PROTECT(ans = allocVector(STRSXP, N));
+    R_xlen_t N = (n > 0) ? ((m > n) ? m : n) : 0;
+    SEXP ans = PROTECT(allocVector(STRSXP, N));
     char tm_zone[20];
 #ifdef HAVE_TM_GMTOFF
     Rboolean have_zone = LENGTH(x) >= 11;// and components w/ length >= 1
 #else
     Rboolean have_zone = LENGTH(x) >= 10;
-    Rprintf("DO NOT Have Tm Gmtoff, %d %d\n", have_zone, LENGTH(x));
 #endif
     if(have_zone && !isString(VECTOR_ELT(x, 9)))
 	error("invalid component [[10]] in \"POSIXlt\" should be 'zone'");		/* #nocov */
     if(!have_zone && LENGTH(x) > 9) // rather even error ?
+        /* never when !HAVE_GMTOFF */
 	warning("More than 9 list components in \"POSIXlt\" without timezone");
     for(R_xlen_t i = 0; i < N; i++) {
 	double secs = REAL(VECTOR_ELT(x, 0))[i%nlen[0]], fsecs = floor(secs);
@@ -978,8 +982,11 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 #elif defined USE_INTERNAL_MKTIME
 	    if(tm.tm_isdst >= 0) R_tzname[tm.tm_isdst] = tm_zone;
 #else
-	    // The system one, as we use system strftime here
-	    if(tm.tm_isdst >= 0) tzname[tm.tm_isdst] = tm_zone;
+	    /* Modifying tzname causes memory corruption on Solaris. It
+	       is not specified to have any effect and strftime is documented
+	       to call settz().*/
+	    if(tm.tm_isdst >= 0 && strcmp(tzname[tm.tm_isdst], tm_zone))
+		warning("Timezone specified in the object field cannot be used on this system.");
 #endif
 #ifdef HAVE_TM_GMTOFF
 	    int tmp = INTEGER(VECTOR_ELT(x, 10))[i%nlen[10]];
@@ -1044,6 +1051,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 	    strftime(buff, 256, buf2, &tm);
 #endif
 	    buff[256] = '\0';
+            //mbcsTruncateToValid(buff);
 	    // Now assume tzone abbreviated name is < 40 bytes,
 	    // but they are currently 3 or 4 bytes.
 	    if(UseTZ) {
@@ -1099,7 +1107,7 @@ SEXP Rstrptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) {
     if (!isString(stz) || LENGTH(stz) != 1)
          error("invalid '%s' value", "tz");  				/* #nocov */
     tz = CHAR(STRING_ELT(stz, 0));
-    if (strlen(tz) == 0) {
+    if(strlen(tz) == 0) {
 	/* do a direct look up here as this does not otherwise
 	   work on Windows */
 	char *p = getenv("TZ");
@@ -1140,9 +1148,9 @@ SEXP Rstrptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) {
     for(int i = 0; i < 9; i++)
 	SET_VECTOR_ELT(ans, i, allocVector(i > 0 ? INTSXP : REALSXP, N));
     if(!isgmt) {
-	SET_VECTOR_ELT(ans, 9, allocVector(STRSXP, n));
+	SET_VECTOR_ELT(ans, 9, allocVector(STRSXP, N));
 #ifdef HAVE_TM_GMTOFF
-	SET_VECTOR_ELT(ans, 10, allocVector(INTSXP, n));
+	SET_VECTOR_ELT(ans, 10, allocVector(INTSXP, N));
 #endif
     }
 
@@ -1244,7 +1252,7 @@ SEXP D2POSIXlt(SEXP argsxp)
     n = XLENGTH(x);
     PROTECT(ans = allocVector(VECSXP, 9));
     for(int i = 0; i < 9; i++)
-        SET_VECTOR_ELT(ans, i, allocVector(i > 0 ? INTSXP : REALSXP, n));
+	SET_VECTOR_ELT(ans, i, allocVector(i > 0 ? INTSXP : REALSXP, n));
 
     PROTECT(ansnames = allocVector(STRSXP, 9));
     for(int i = 0; i < 9; i++)

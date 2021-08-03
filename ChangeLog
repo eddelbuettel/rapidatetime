@@ -1,5 +1,8 @@
 2021-08-03  Dirk Eddelbuettel  <edd@debian.org>
 
+	* src/datetime.c: Synchronised with r-devel version
+	* src/Rstrptime.h (day_of_the_week): Idem
+
 	* src/Makevars.win (PKG_CFLAGS): Added
 
 2021-07-31  Dirk Eddelbuettel  <edd@debian.org>

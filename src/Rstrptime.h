@@ -158,7 +158,7 @@ day_of_the_week (stm *tm)
 	    + (corr_year / 4)
 	    - ((corr_year / 4) / 25) + ((corr_year / 4) % 25 < 0)
 	    + (((corr_year / 4) / 25) / 4)
-	    + __mon_yday[0][tm->tm_mon]
+	    + __mon_yday[0][tm->tm_mon] // no check on month in range
 	    + tm->tm_mday - 1);
     tm->tm_wday = ((wday % 7) + 7) % 7;
 }
@@ -179,6 +179,8 @@ day_of_the_year (stm *tm)
 #if 0
 #include <wchar.h>
 #include <wctype.h>
+
+#include <rlocale.h> // to possibly override iswspace
 
 #define DT_WBUFSIZE 25
 static wchar_t w_weekday_name[][DT_WBUFSIZE] =
@@ -365,7 +367,7 @@ w_strptime_internal (wchar_t *rp, const wchar_t *fmt, stm *tm,
 	  break;
 	case L'j':
 	  /* Match day number of year.  */
-	  get_number (1, 366, 3);
+	  get_number (1, 366, 3); // NB: 366 would be invalid in most years
 	  tm->tm_yday = val - 1;
 	  have_yday = 1;
 	  break;
@@ -611,8 +613,8 @@ w_strptime_internal (wchar_t *rp, const wchar_t *fmt, stm *tm,
 	    case L'y':
 		/* Match year within century using alternate numeric symbols.  */
 		get_alt_number (0, 99, 2);
-	        int ival = val;
-	        tm->tm_year = ival >= 69 ? ival : ival + 100;
+		int ival = val;
+		tm->tm_year = ival >= 69 ? ival : ival + 100;
 		want_xday = 1;
 		break;
 	    default:
@@ -638,14 +640,22 @@ w_strptime_internal (wchar_t *rp, const wchar_t *fmt, stm *tm,
 
     if (want_xday && !have_wday) {
 	if ( !(have_mon && have_mday) && have_yday)  {
+	    /* have_yday, so this must have come from %j */
 	    /* We don't have tm_mon and/or tm_mday, compute them. */
 	    int t_mon = 0;
-	    while (__mon_yday[__isleap(1900 + tm->tm_year)][t_mon] <= tm->tm_yday)
-		t_mon++;
+	    int yr = 1900 + tm->tm_year;
+	    if(tm->tm_yday > (__isleap(yr) ? 365 : 364)) {
+		warning("day-of-year %d in year %d is invalid\n",
+			tm->tm_yday+1, yr);
+		t_mon = 12; // this will give an invalid mday, so invalid tm
+	    } else {
+		while (__mon_yday[__isleap(yr)][t_mon] <= tm->tm_yday)
+		    t_mon++;
+	    }
 	    if (!have_mon)
 		tm->tm_mon = t_mon - 1;
 	    if (!have_mday)
-		tm->tm_mday = (tm->tm_yday - __mon_yday[__isleap(1900 + tm->tm_year)][t_mon - 1] + 1);
+		tm->tm_mday = (tm->tm_yday - __mon_yday[__isleap(yr)][t_mon - 1] + 1);
 	}
 	day_of_the_week (tm);
     }
@@ -668,6 +678,8 @@ w_strptime_internal (wchar_t *rp, const wchar_t *fmt, stm *tm,
 	  tm->tm_mon = save_mon;
 
       if (!have_yday) {
+	  // Get yday from week and day-of-the-week.
+	  // This does not validate yday against any upper limit
 	  tm->tm_yday = ((7 - (tm->tm_wday - w_offset)) % 7
 			 + (week_no - 1) *7
 			 + save_wday - w_offset);
@@ -677,15 +689,20 @@ w_strptime_internal (wchar_t *rp, const wchar_t *fmt, stm *tm,
       if (!have_mday || !have_mon)
       {
 	  int t_mon = 0;
-	  while (__mon_yday[__isleap(1900 + tm->tm_year)][t_mon]
-		 <= tm->tm_yday)
-	      t_mon++;
+	  int yr = 1900 + tm->tm_year;
+	  if(tm->tm_yday > (__isleap(yr) ? 365 : 364)) {
+	      warning("(0-based) yday %d in year %d is invalid\n",
+		      tm->tm_yday, yr);
+	      t_mon = 12;
+	  } else {
+	      while (__mon_yday[__isleap(yr)][t_mon] <= tm->tm_yday)
+		  t_mon++;
+	  }
 	  if (!have_mon)
 	      tm->tm_mon = t_mon - 1;
 	  if (!have_mday)
 	      tm->tm_mday =
-		  (tm->tm_yday
-		   - __mon_yday[__isleap(1900 + tm->tm_year)][t_mon - 1] + 1);
+		  (tm->tm_yday - __mon_yday[__isleap(yr)][t_mon - 1] + 1);
       }
 
       tm->tm_wday = save_wday;
@@ -1105,14 +1122,22 @@ strptime_internal (const char *rp, const char *fmt, stm *tm,
 
     if (want_xday && !have_wday) {
 	if ( !(have_mon && have_mday) && have_yday)  {
+	    /* have_yday, so this must have come from %j */
 	    /* We don't have tm_mon and/or tm_mday, compute them. */
 	    int t_mon = 0;
-	    while (__mon_yday[__isleap(1900 + tm->tm_year)][t_mon] <= tm->tm_yday)
-		t_mon++;
+	    int yr = 1900 + tm->tm_year;
+	    if(tm->tm_yday > (__isleap(yr) ? 365 : 364)) {
+		warning("day-of-year %d in year %d is invalid\n",
+			tm->tm_yday+1, yr);
+		t_mon = 12;
+	    } else {
+		while (__mon_yday[__isleap(yr)][t_mon] <= tm->tm_yday)
+		    t_mon++;
+	    }
 	    if (!have_mon)
 		tm->tm_mon = t_mon - 1;
 	    if (!have_mday)
-		tm->tm_mday = (tm->tm_yday - __mon_yday[__isleap(1900 + tm->tm_year)][t_mon - 1] + 1);
+		tm->tm_mday = (tm->tm_yday - __mon_yday[__isleap(yr)][t_mon - 1] + 1);
 	}
 	day_of_the_week (tm);
     }
@@ -1142,20 +1167,25 @@ strptime_internal (const char *rp, const char *fmt, stm *tm,
       if (!have_mday || !have_mon)
       {
 	  int t_mon = 0;
-	  while (__mon_yday[__isleap(1900 + tm->tm_year)][t_mon]
-		 <= tm->tm_yday)
-	      t_mon++;
+	  int yr = 1900 + tm->tm_year;
+	  if(tm->tm_yday > (__isleap(yr) ? 365 : 364)) {
+		warning("(0-based) yday %d in year %d is invalid\n",
+			tm->tm_yday, yr);
+		t_mon = 12;
+	  } else {
+	      while (__mon_yday[__isleap(yr)][t_mon] <= tm->tm_yday)
+		  t_mon++;
+	  }
 	  if (!have_mon)
 	      tm->tm_mon = t_mon - 1;
 	  if (!have_mday)
 	      tm->tm_mday =
-		  (tm->tm_yday
-		   - __mon_yday[__isleap(1900 + tm->tm_year)][t_mon - 1] + 1);
+		  (tm->tm_yday - __mon_yday[__isleap(yr)][t_mon - 1] + 1);
       }
 
       tm->tm_wday = save_wday;
   }
-								/* #nocov end */ 
+
     return (char *) rp;
 }
 
@@ -1256,7 +1286,7 @@ static void get_locale_w_strings(void)
 
 /* We only care if the result is null or not */
 static void *
-R_strptime (const char *buf, const char *format, stm *tm, 
+R_strptime (const char *buf, const char *format, stm *tm,
 	    double *psecs, int *poffset)
 {
 #if defined(HAVE_WCSTOD)
