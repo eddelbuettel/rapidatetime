@@ -3,6 +3,18 @@
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/rapidatetime/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/rapidatetime/issues/#1}{##1}}
 
+\section{Changes in RApiDatetime version 0.0.5 (2021-08-05)}{
+  \itemize{
+    \item Add a few \code{#nocov} tags
+    \item Update continuous integration to use
+    \href{https://eddelbuettel.github.io/r-ci/}{r-ci}, reenable coverage
+    \item Update DESCRIPTION with URL and BugReports fields
+    \item Add bew CI and LastCommitted badges to README.md
+    \item Add compiler flag for Windows UCRT build
+    \item Synchronized datetime function with upstream r-devel code
+  }
+}
+
 \section{Changes in RApiDatetime version 0.0.4 (2018-10-21)}{
   \itemize{
     \item New function \code{asDatePOSIXct} (Josh Ulrich in \ghpr{2})

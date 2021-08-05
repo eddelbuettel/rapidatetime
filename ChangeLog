@@ -1,7 +1,13 @@
+2021-08-05  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Release 0.0.5
+
+	* README.md: Update/correct one URL
+
 2021-08-03  Dirk Eddelbuettel  <edd@debian.org>
 
 	* src/datetime.c: Synchronised with r-devel version
-	* src/Rstrptime.h (day_of_the_week): Idem
+	* src/Rstrptime.h: Idem
 
 	* src/Makevars.win (PKG_CFLAGS): Added
 
