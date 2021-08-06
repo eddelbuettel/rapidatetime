@@ -101,7 +101,7 @@ known OS with 64-bit time_t and complete tables is Linux.
 # define HAVE_WORKING_64BIT_MKTIME 1
 #else
 
-# if defined(__CYGWIN__) || defined(_WIN32)
+# if defined(__CYGWIN__) || defined(_WIN32) || defined(__sun)
   // nothing, in particular so not define GMTOFF
 # else
   // define this to have the field, even if empty / NA
