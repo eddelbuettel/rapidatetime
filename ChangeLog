@@ -1,3 +1,7 @@
+2021-08-06  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Date, Version): Roll minor version and date
+
 2021-08-05  Dirk Eddelbuettel  <edd@debian.org>
 
 	* src/datetime.c: Account for __sunos
