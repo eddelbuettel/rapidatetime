@@ -1,3 +1,9 @@
+2021-08-13  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Release 0.0.6
+
+	* tests/version.R: Add test for matching version in inst/NEWS.Rd
+
 2021-08-06  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Date, Version): Roll minor version and date
