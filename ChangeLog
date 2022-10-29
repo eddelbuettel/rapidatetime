@@ -4,6 +4,8 @@
 
 	* .github/workflows/ci.yaml (jobs): Update to actions/checkout@v3
 
+	* README.md: Update several http:// URLs to https://
+
 2021-08-13  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Version, Date): Release 0.0.6

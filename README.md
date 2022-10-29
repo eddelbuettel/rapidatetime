@@ -1,11 +1,11 @@
 ## RApiDatetime: R Date and Datetime Functionality at the C Level
 
 [![CI](https://github.com/eddelbuettel/rapidatetime/workflows/ci/badge.svg)](https://github.com/eddelbuettel/rapidatetime/actions?query=workflow%3Aci)
-[![License](http://img.shields.io/badge/license-GPL%20%28%3E=%202%29-brightgreen.svg?style=flat)](http://www.gnu.org/licenses/gpl-2.0.html) 
-[![CRAN](http://www.r-pkg.org/badges/version/RApiDatetime)](https://cran.r-project.org/package=RApiDatetime) 
-[![Downloads](http://cranlogs.r-pkg.org/badges/RApiDatetime?color=brightgreen)](https://www.r-pkg.org:443/pkg/RApiDatetime) 
+[![License](https://img.shields.io/badge/license-GPL%20%28%3E=%202%29-brightgreen.svg?style=flat)](https://www.gnu.org/licenses/gpl-2.0.html) 
+[![CRAN](https://www.r-pkg.org/badges/version/RApiDatetime)](https://cran.r-project.org/package=RApiDatetime) 
+[![Downloads](https://cranlogs.r-pkg.org/badges/RApiDatetime?color=brightgreen)](https://www.r-pkg.org:443/pkg/RApiDatetime) 
 [![Dependencies](https://tinyverse.netlify.com/badge/RApiDatetime)](https://cran.r-project.org/package=RApiDatetime) 
-[![Code Coverage](https://codecov.io/gh/eddelbuettel/rapidatetime/graph/badge.svg)](https://codecov.io/gh/eddelbuettel/rapidatetime) 
+[![Code Coverage](https://app.codecov.io/gh/eddelbuettel/rapidatetime/graph/badge.svg)](https://app.codecov.io/gh/eddelbuettel/rapidatetime) 
 [![Last Commit](https://img.shields.io/github/last-commit/eddelbuettel/rapidatetime)](https://github.com/eddelbuettel/rapidatetime)
 
 ### About
