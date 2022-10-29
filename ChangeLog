@@ -1,3 +1,7 @@
+2022-10-28  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/Rstrptime.h (dt_invalidate_locale): Add void for prototype
+
 2021-08-13  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Version, Date): Release 0.0.6
