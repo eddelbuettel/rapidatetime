@@ -3,6 +3,14 @@
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/rapidatetime/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/rapidatetime/issues/#1}{##1}}
 
+\section{Changes in RApiDatetime version 0.0.7 (2022-10-30)}{
+  \itemize{
+    \item A function prototype was updated for \code{clang-15}.
+    \item GitHub Actions were updated to checkout version 3.
+    \item Several remaining http:// URLs were converted to https://.
+  }
+}
+
 \section{Changes in RApiDatetime version 0.0.6 (2021-08-13)}{
   \itemize{
     \item Correctly account for SunOS to have it avoid \code{GMTOFF} use
