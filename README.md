@@ -5,7 +5,7 @@
 [![CRAN](https://www.r-pkg.org/badges/version/RApiDatetime)](https://cran.r-project.org/package=RApiDatetime) 
 [![Downloads](https://cranlogs.r-pkg.org/badges/RApiDatetime?color=brightgreen)](https://www.r-pkg.org:443/pkg/RApiDatetime) 
 [![Dependencies](https://tinyverse.netlify.com/badge/RApiDatetime)](https://cran.r-project.org/package=RApiDatetime) 
-[![Code Coverage](https://app.codecov.io/gh/eddelbuettel/rapidatetime/graph/badge.svg)](https://app.codecov.io/gh/eddelbuettel/rapidatetime) 
+[![Code Coverage](https://codecov.io/gh/eddelbuettel/rapidatetime/graph/badge.svg)](https://app.codecov.io/gh/eddelbuettel/rapidatetime) 
 [![Last Commit](https://img.shields.io/github/last-commit/eddelbuettel/rapidatetime)](https://github.com/eddelbuettel/rapidatetime)
 
 ### About
