@@ -1,6 +1,6 @@
 /*
  *  R : A Computer Language for Statistical Data Analysis
- *  Copyright (C) 2000-2014  The R Core Team.
+ *  Copyright (C) 2000-2022  The R Core Team.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 # include <stdint.h>
 // C99/C11 require this to be implemented.
+// Copied into platform.c to avoid including all of this header.
 typedef int_fast64_t R_time_t;
 
 struct Rtm
