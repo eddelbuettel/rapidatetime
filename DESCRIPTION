@@ -1,11 +1,11 @@
 Package: RApiDatetime
 Type: Package
-Title: R API Datetime
-Version: 0.0.7
-Date: 2022-10-30
+Title: R API for 'Date' and 'Datetime' 
+Version: 0.0.8
+Date: 2023-01-14
 Author: Dirk Eddelbuettel
 Maintainer: Dirk Eddelbuettel <edd@debian.org>
-Description: Access to the C-level R date and datetime code is provided for
+Description: Access to the C-level R date and 'datetime' code is provided for
  C-level API use by other packages via registration of native functions.
  Client packages simply include a single header 'RApiDatetime.h' provided
  by this package, and also 'import' it.  The R Core group is the original

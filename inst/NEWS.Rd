@@ -3,6 +3,13 @@
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/rapidatetime/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/rapidatetime/issues/#1}{##1}}
 
+\section{Changes in RApiDatetime version 0.0.8 (2023-01-14)}{
+  \itemize{
+    \item Update one use of \code{sprint} to \code{snprintf}
+    \item Minor edits to DESCRIPTION
+  }
+}
+
 \section{Changes in RApiDatetime version 0.0.7 (2022-10-30)}{
   \itemize{
     \item A function prototype was updated for \code{clang-15}.
