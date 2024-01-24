@@ -3,6 +3,13 @@
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/rapidatetime/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/rapidatetime/issues/#1}{##1}}
 
+\section{Changes in RApiDatetime version 0.0.9 (2024-01-23)}{
+  \itemize{
+    \item Replace auto-generated stale RApitDatetime-package.Rd with
+    macro-filled stanza to satisfy CRAN request.
+  }
+}
+
 \section{Changes in RApiDatetime version 0.0.8 (2023-01-14)}{
   \itemize{
     \item Update one use of \code{sprint} to \code{snprintf}
