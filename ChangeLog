@@ -19,7 +19,8 @@
 
 	* DESCRIPTION (Version, Date): Release 0.0.9
 
-	* DESCRIPTION (OS_type): Reset package to Unix-only
+	* DESCRIPTION (OS_type): Reset package to Unix-only as ucrt library
+	is unhappy about 'tzname'
 
 	* man/RApiDatetime-package.Rd: Avoid nags on empty entries
 

@@ -3,6 +3,12 @@
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/rapidatetime/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/rapidatetime/issues/#1}{##1}}
 
+\section{Changes in RApiDatetime version 0.0.9.1 (unreleased)}{
+  \itemize{
+    \item Minor maintenance for continuous integration and badges
+  }
+}
+
 \section{Changes in RApiDatetime version 0.0.9 (2024-01-23)}{
   \itemize{
     \item Replace auto-generated stale RApitDatetime-package.Rd with
