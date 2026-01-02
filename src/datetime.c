@@ -37,7 +37,8 @@
 # include <config.h>
 #endif
 
-#include <Rmath.h> // for imin2()
+#include <Rmath.h> 	// for imin2()
+#include <Rversion.h>	// for R_Version
 
 // to get tm_zone, tm_gmtoff defined in glibc.
 // some other header, e.g. math.h, might define the macro.
@@ -1229,8 +1230,12 @@ SEXP Rstrptime(SEXP xarg, SEXP sformatarg, SEXP stzarg) {
     PROTECT(klass = allocVector(STRSXP, 2));
     SET_STRING_ELT(klass, 0, mkChar("POSIXlt"));
     SET_STRING_ELT(klass, 1, mkChar("POSIXt"));
+#if R_VERSION >= R_Version(4,5,0)
+    Rf_setAttrib(ans, R_ClassSymbol, klass); /* we can now use Rf_setAttrib -- DEdd */
+#else
     //classgets(ans, klass);  /* DEdd: this bombs, so use installAttrib instead */
     installAttrib(ans, R_ClassSymbol, klass); /* fix by DE */
+#endif
     if(settz) reset_tz(oldtz);
     if(isString(tzone)) setAttrib(ans, install("tzone"), tzone);
 

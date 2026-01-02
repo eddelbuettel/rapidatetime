@@ -1,6 +1,9 @@
 
 #include <R.h>
 #include <Rinternals.h>
+#include <Rversion.h>
+
+#if R_VERSION < R_Version(4,6,0)
 
 /* -- from attrib.c ------------------------------------------------------------ */
 
@@ -11,8 +14,8 @@ SEXP installAttrib(SEXP vec, SEXP name, SEXP val)
 
     if(TYPEOF(vec) == CHARSXP)
 	error("cannot set attribute on a CHARSXP"); 		/* #nocov */
-    if (TYPEOF(vec) == SYMSXP)
-	error("cannot set attribute on a symbol"); 		/* #nocov */
+    if (TYPEOF(vec) == SYMSXP || TYPEOF(vec) == BUILTINSXP || TYPEOF(vec) == SPECIALSXP)
+	error("cannot set attribute on a '%s'", R_typeToChar(vec)); /* #nocov */
     /* this does no allocation */
     for (SEXP s = ATTRIB(vec); s != R_NilValue; s = CDR(s)) {
 	if (TAG(s) == name) {
@@ -32,3 +35,5 @@ SEXP installAttrib(SEXP vec, SEXP name, SEXP val)
     UNPROTECT(3);
     return val;
 }
+
+#endif

@@ -3,7 +3,7 @@
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/rapidatetime/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/rapidatetime/issues/#1}{##1}}
 
-\section{Changes in RApiDatetime version 0.0.9.1 (unreleased)}{
+\section{Changes in RApiDatetime version 0.0.9.2 (unreleased)}{
   \itemize{
     \item Minor maintenance for continuous integration and badges
   }
