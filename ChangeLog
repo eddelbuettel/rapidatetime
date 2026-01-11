@@ -5,7 +5,7 @@
 2026-01-02  Dirk Eddelbuettel  <edd@debian.org>
 
 	* src/datetime.c (Rstrptime): Use Rf_setAttrib with R 4.5.0 or later
-	* src/attrib.c (installAttrib): Minor updated relative to R source,
+	* src/attrib.c (installAttrib): Minor update relative to R source,
 	also compile only under older R to avoid nags on SET_ATTRIB and ATTRIB
 
 2025-02-18  Dirk Eddelbuettel  <edd@debian.org>
