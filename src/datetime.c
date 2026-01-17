@@ -913,7 +913,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
     UseTZ = asLogical(tzsxp);
     if (UseTZ == NA_LOGICAL)
 	error("invalid '%s' argument", "usetz");				/* #nocov */
-    tz = getAttrib(x, install("tzone"));
+    PROTECT(tz = getAttrib(x, install("tzone")));
 
     const char *tz1;
     if (!isNull(tz) && strlen(tz1 = CHAR(STRING_ELT(tz, 0)))) {
@@ -1074,7 +1074,7 @@ SEXP formatPOSIXlt(SEXP argsxp, SEXP fmtsxp, SEXP tzsxp) //
 	}
     }
     if(settz) reset_tz(oldtz);
-    UNPROTECT(2);
+    UNPROTECT(3);
     return ans;
 }
 
