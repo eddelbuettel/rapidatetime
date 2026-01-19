@@ -3,7 +3,7 @@
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/rapidatetime/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/rapidatetime/issues/#1}{##1}}
 
-\section{Changes in RApiDatetime version 0.0.10.1 (2026-01-18)}{
+\section{Changes in RApiDatetime version 0.0.11 (2026-01-19)}{
   \itemize{
     \item Add PROTECT (and UNPROTECT) to appease rchk
   }

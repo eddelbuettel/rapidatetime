@@ -1,8 +1,8 @@
 Package: RApiDatetime
 Type: Package
 Title: R API for 'Date' and 'Datetime' 
-Version: 0.0.10.1
-Date: 2026-01-17
+Version: 0.0.11
+Date: 2026-01-19
 Authors@R: c(person("Dirk", "Eddelbuettel", role = c("aut", "cre"), email = "edd@debian.org",
                     comment = c(ORCID = "0000-0001-6419-907X")),
              person("R Core", role = "aut", comment = "Included date / datetime code"))
